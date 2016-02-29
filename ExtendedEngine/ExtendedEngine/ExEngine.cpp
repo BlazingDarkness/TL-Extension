@@ -103,4 +103,14 @@ namespace tle
 			}
 		}
 	}
+
+	CVector3 ExEngine::GetOffScreenPos()
+	{
+		if (m_Cameras.size() > 0)
+			return CVector3(m_Cameras.back()->GetX(),
+							m_Cameras.back()->GetY(),
+							m_Cameras.back()->GetZ());
+		else
+			return CVector3(0.0f, 0.0f, 0.0f);
+	}
 }

@@ -2,6 +2,7 @@
 #include <memory>
 #include <list>
 #include "ExEngine.h"
+#include "IUpdateable.h"
 
 namespace tle
 {
@@ -9,20 +10,18 @@ namespace tle
 	class ExEngine;
 
 	template<class T>
-	class CManagedPool
+	class CManagedPool : virtual public IUpdateable
 	{
 	protected:
-		ExEngine* mpEngine;
 		std::list<std::unique_ptr<T>> mInactive;
 		std::list<std::unique_ptr<T>> mActive;
 
 	public:
-		CManagedPool(int initSize, ExEngine* engine)
+		CManagedPool(int initSize)
 		{
-			mpEngine = engine;
 			for (int i = 0; i < initSize; i++)
 			{
-				mInactive.push_back(std::unique_ptr<T>(new T(mpEngine)));
+				mInactive.push_back(std::unique_ptr<T>(new T));
 			}
 		}
 

@@ -3,7 +3,7 @@
 
 namespace tle
 {
-	enum EmissionType { Sphere, Circle, Cone, Arch };
+	enum EmissionType { Sphere, Circle, Cone, Arch, Line };
 
 	class IParticleEmitter : virtual public ISceneNode
 	{

@@ -106,10 +106,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\ProgramData\TL-Engine\include;C:\ProgramData\TL-Engine\Source\3DEngine;C:\ProgramData\TL-Engine\Source\Common;C:\ProgramData\TL-Engine\3rd Party\TL-Xtreme\include;C:\ProgramData\TL-Engine\3rd Party\irrlicht-0.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>3DEngine2015Debug.lib;%(AdditionalDependencies)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -144,16 +148,21 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\ProgramData\TL-Engine\include;C:\ProgramData\TL-Engine\Source\3DEngine;C:\ProgramData\TL-Engine\Source\Common;C:\ProgramData\TL-Engine\3rd Party\TL-Xtreme\include;C:\ProgramData\TL-Engine\3rd Party\irrlicht-0.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>3DEngine2015.lib;%(AdditionalDependencies)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CAnimation.h" />
     <ClInclude Include="CManagedPool.h" />
+    <ClInclude Include="CParticle.h" />
     <ClInclude Include="CParticleEmitter.h" />
     <ClInclude Include="IAnimation.h" />
     <ClInclude Include="ExEngine.h" />
@@ -169,6 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CAnimation.cpp" />
+    <ClCompile Include="CParticle.cpp" />
     <ClCompile Include="CParticleEmitter.cpp" />
     <ClCompile Include="ExEngine.cpp" />
     <ClCompile Include="ExtendedEngine.cpp" />

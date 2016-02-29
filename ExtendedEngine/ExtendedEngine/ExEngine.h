@@ -1,6 +1,8 @@
 #pragma once
 #include "IEngine.h"
 #include "TLXEngineModified.h"
+#include "IUpdateable.h"
+#include "CManagedPool.h"
 #include <unordered_map>
 #include <vector>
 #include <memory>
@@ -12,6 +14,8 @@ namespace tle
 	private:
 		std::unordered_map<string, IMesh*> mMeshMap;
 		std::vector<std::unique_ptr<IAnimation>> mAnimations;
+		std::vector<std::unique_ptr<IUpdateable>> mManagedPools;
+
 	public:
 		ExEngine();
 
@@ -39,26 +43,27 @@ namespace tle
 		virtual IMesh* LoadMesh(const string& sMeshFileName);
 		virtual void RemoveMesh(const IMesh* pMesh);
 
-		/*template <class T>
-		virtual CManagedPool<T>* CreateManagedPool(int size)
+		template <class T>
+		CManagedPool<T>* CreateManagedPool(int size)
 		{
 			CManagedPool<T>* newPool = new CManagedPool<T>(size);
-			mUpdateables.push_back(unique_ptr<CManagedPool<T>>(newPool));
+			mManagedPools.push_back(unique_ptr<CManagedPool<T>>(newPool));
 			return newPool;
 		}
 
 		template <class T>
 		void RemoveManagedPool(CManagedPool<T>* pool)
 		{
-			for (auto updateable = mUpdateables.begin(); updateable != mUpdateables.end(); updateable++)
+			for (auto managedPool = mManagedPools.begin(); managedPool != mManagedPools.end(); managedPool++)
 			{
-				if ((*updateable).get() == pool)
+				if ((*managedPool).get() == pool)
 				{
-					mUpdateables.erase(updateable);
+					mManagedPools.erase(managedPool);
 					return;
 				}
 			}
-		}*/
+		}
 
+		virtual CVector3 GetOffScreenPos();
 	};
 }
