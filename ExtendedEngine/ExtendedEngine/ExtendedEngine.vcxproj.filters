@@ -60,6 +60,18 @@
     <ClInclude Include="TLXEngineModified.h">
       <Filter>Header Files\TLX</Filter>
     </ClInclude>
+    <ClInclude Include="IParticleEmitter.h">
+      <Filter>Header Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CParticleEmitter.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="CManagedPool.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="IManagedResource.h">
+      <Filter>Header Files\Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -76,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="TLXEngineModified.cpp">
       <Filter>Source Files\TLX</Filter>
+    </ClCompile>
+    <ClCompile Include="CParticleEmitter.cpp">
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
