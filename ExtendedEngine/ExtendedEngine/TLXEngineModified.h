@@ -53,7 +53,7 @@ namespace tle			// TL-Engine interface
 		CTLXEngineMod();
 
 		// Destructor
-		~CTLXEngineMod();
+		virtual ~CTLXEngineMod();
 
 
 		/////////////////////////////////////
@@ -233,7 +233,7 @@ namespace tle			// TL-Engine interface
 
 		// Draw everything in the scene from the viewpoint of the given camera.
 		// If no camera is supplied, the most recently created camera is used.
-		void DrawScene
+		virtual void DrawScene
 			(
 				ICamera* pCamera = 0
 				);
@@ -325,7 +325,7 @@ namespace tle			// TL-Engine interface
 
 		// Get time passed since last call to this function, returns value in seconds using
 		// highest accuracy timer available
-		float Timer();
+		virtual float Timer();
 
 
 		/*-------------------------------------------------------------------------

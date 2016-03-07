@@ -1,9 +1,21 @@
 #pragma once
 #include <SceneNode.h>
+#include <Mesh.h>
+#include <CVector3.h>
 
 namespace tle
 {
 	enum EmissionType { Sphere, Circle, Cone, Arch, Line };
+
+	struct SParticleData
+	{
+		IMesh* mMesh;
+		string skin;
+		tlx::CVector3 Acceleration;
+		tlx::CVector3 Velocity;
+		float life;
+		float spread;
+	};
 
 	class IParticleEmitter : virtual public ISceneNode
 	{

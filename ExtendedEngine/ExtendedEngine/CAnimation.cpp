@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CAnimation.h"
+#include "ExEngine.h"
 
 namespace tle
 {

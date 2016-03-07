@@ -1,14 +1,16 @@
 #pragma once
 #include <vector>
 #include "IAnimation.h"
-#include "IUpdateable.h"
-#include "ExEngine.h"
+#include "Sprite.h"
 
 namespace tle
 {
+	//Hacky work around to avoid circular reference
+	class ExEngine;
+
 	using SpriteVector = std::vector<ISprite*>;
 
-	class CAnimation : public IAnimation, public IUpdateable
+	class CAnimation : public IAnimation
 	{
 	private:
 		CVector3 mPos;

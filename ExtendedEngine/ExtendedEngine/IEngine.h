@@ -1,13 +1,10 @@
 #pragma once
 #include "TL-Engine.h"
-#include "CVector3.h"
 #include "IAnimation.h"
-#include <vector>
+#include "IUsings.h"
 
 namespace tle
 {
-	using tlx::CVector3;
-
 	class IEngine : public I3DEngine
 	{
 		//Creates an animation at the given location

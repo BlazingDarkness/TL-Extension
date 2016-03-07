@@ -12,7 +12,7 @@ namespace tle
 		mpSceneManager = sceneManager;
 		mpTLXCamera = positionNode;
 		mpEngine = engine;
-		mpParticlePool = mpEngine->CreateManagedPool<CParticle>(50);
+		//mpParticlePool = mpEngine->CreateManagedPool<CParticle>(50);
 	}
 
 	void CParticleEmitter::Start()
@@ -27,12 +27,12 @@ namespace tle
 
 	void CParticleEmitter::Reset()
 	{
-		mpParticlePool->Reset();
+		//mpParticlePool->Reset();
 	}
 
 	void CParticleEmitter::Update(float delta)
 	{
-		mTimer += delta;
+		/*mTimer += delta;
 		while (mTimer > mRate)
 		{
 			mTimer -= mRate;
@@ -41,7 +41,7 @@ namespace tle
 			float matrix[16];
 			GetMatrix(&matrix[0]);
 			p->SetMatrix(&(matrix[0]));
-		}
+		}*/
 	}
 
 	void CParticleEmitter::SetEmissionType(EmissionType type)

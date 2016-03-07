@@ -1,7 +1,6 @@
 #pragma once
-#include "CVector3.h"
-#include "CMatrix4x4.h"
-#include "ExEngine.h"
+#include "IUsings.h"
+#include "IEngine.h"
 #include "IManagedResource.h"
 
 namespace tle

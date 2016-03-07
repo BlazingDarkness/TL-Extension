@@ -1,11 +1,8 @@
 #pragma once
-#include "IEngine.h"
 #include "TLXEngineModified.h"
-#include "IUpdateable.h"
-#include "CManagedPool.h"
+#include "CParticleEmitter.h"
+#include "CAnimation.h"
 #include <unordered_map>
-#include <vector>
-#include <memory>
 
 namespace tle
 {
@@ -13,57 +10,85 @@ namespace tle
 	{
 	private:
 		std::unordered_map<string, IMesh*> mMeshMap;
-		std::vector<std::unique_ptr<IAnimation>> mAnimations;
-		std::vector<std::unique_ptr<IUpdateable>> mManagedPools;
+		vector_ptr<CAnimation> mAnimations;
+		vector_ptr<CParticleEmitter> mEmitters;
+
+		bool mAutoUpdate;
 
 	public:
 		ExEngine();
+
+		/***************************************************
+						Overriden functions
+		****************************************************/
+
+		//Attempts to Loads the specificed mesh
+		//Returns 0 if mesh can't be found
+		virtual IMesh* LoadMesh(const string& sMeshFileName);
+
+		//Removes the mesh if found, all models of the mesh will also be deleted
+		virtual void RemoveMesh(const IMesh* pMesh);
+
+		// Draw everything in the scene from the viewpoint of the given camera.
+		// If no camera is supplied, the most recently created camera is used.
+		virtual void DrawScene(ICamera* pCamera = 0);
+
+		// Get time passed since last call to this function, returns value in seconds using
+		// highest accuracy timer available
+		// Calls update function on all automaticly updated objects if mAutoUpdate is true
+		virtual float Timer();
+
+		/***************************************************
+							New functions
+		****************************************************/
+
+		/////////////
+		//Animation//
 
 		//Creates an animation at the given location
 		//Runs through the frames at a tick rate
 		//Return 0 if failed to load any of the animation frames
 		virtual IAnimation* CreateAnimation(const std::vector<string>& frameList,
-							const CVector3& position = CVector3(0.0f, 0.0f, 0.0f),
-							const float tickRate = 0.1f,
-							const bool looped = true
+							const CVector3& position	= CVector3(0.0f, 0.0f, 0.0f),	/*Default location is the origin*/
+							const float		tickRate	= 0.1f,							/*Default rate is 10 frames per second*/
+							const bool		looped		= true							/*Set to loop the frames by default*/
 							);
 
 		//Creates an animation at the given location
 		//Runs through the frames at a tick rate
 		//Return 0 if failed to load any of the animation frames
 		virtual IAnimation* CreateAnimation(string& name, string& extension, int amount,
-							const CVector3& position	= CVector3(0.0f, 0.0f, 0.0f),
-							const float		tickRate	= 0.1f,
-							const bool		loope		= true
+							const CVector3& position	= CVector3(0.0f, 0.0f, 0.0f),	/*Default location is the origin*/
+							const float		tickRate	= 0.1f,							/*Default rate is 10 frames per second*/
+							const bool		looped		= true							/*Set to loop the frames by default*/
 							);
 
-		//Attempts to remove the animation
+		//Remove the animation if it exists
 		virtual void RemoveAnimation(IAnimation* pAnimation);
 
-		virtual IMesh* LoadMesh(const string& sMeshFileName);
-		virtual void RemoveMesh(const IMesh* pMesh);
+		////////////////////
+		//Particle Emitter//
 
-		template <class T>
-		CManagedPool<T>* CreateManagedPool(int size)
-		{
-			CManagedPool<T>* newPool = new CManagedPool<T>(size);
-			mManagedPools.push_back(unique_ptr<CManagedPool<T>>(newPool));
-			return newPool;
-		}
+		//Create a particle emitter at the given location
+		virtual IParticleEmitter* CreateEmitter();
 
-		template <class T>
-		void RemoveManagedPool(CManagedPool<T>* pool)
-		{
-			for (auto managedPool = mManagedPools.begin(); managedPool != mManagedPools.end(); managedPool++)
-			{
-				if ((*managedPool).get() == pool)
-				{
-					mManagedPools.erase(managedPool);
-					return;
-				}
-			}
-		}
+		//Remove the particle emitter if it exists
+		virtual void RemoveEmitter(IParticleEmitter* emitter);
 
-		virtual CVector3 GetOffScreenPos();
+		/***************************************************
+						Additional Controls
+		****************************************************/
+
+		//Pauses any auto updated entity eg animations and particles
+		virtual void PauseAnimations();
+
+		//Unpauses any auto updated entities eg animations and particles
+		virtual void UnpauseAnimations();
+
+		/***************************************************
+							Destructor
+		****************************************************/
+
+		virtual ~ExEngine();
 	};
 }

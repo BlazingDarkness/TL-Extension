@@ -162,8 +162,10 @@
   <ItemGroup>
     <ClInclude Include="CAnimation.h" />
     <ClInclude Include="CManagedPool.h" />
+    <ClInclude Include="IUsings.h" />
     <ClInclude Include="CParticle.h" />
     <ClInclude Include="CParticleEmitter.h" />
+    <ClInclude Include="CPool.h" />
     <ClInclude Include="IAnimation.h" />
     <ClInclude Include="ExEngine.h" />
     <ClInclude Include="ExtendedEngine.h" />
