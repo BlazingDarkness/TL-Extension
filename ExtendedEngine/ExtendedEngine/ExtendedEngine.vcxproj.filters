@@ -45,9 +45,6 @@
     <ClInclude Include="IUpdateable.h">
       <Filter>Header Files\Interface</Filter>
     </ClInclude>
-    <ClInclude Include="IParticle.h">
-      <Filter>Header Files\Interface</Filter>
-    </ClInclude>
     <ClInclude Include="IEngine.h">
       <Filter>Header Files\Interface</Filter>
     </ClInclude>

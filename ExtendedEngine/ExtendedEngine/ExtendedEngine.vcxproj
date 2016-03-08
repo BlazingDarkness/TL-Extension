@@ -171,7 +171,6 @@
     <ClInclude Include="ExtendedEngine.h" />
     <ClInclude Include="IEngine.h" />
     <ClInclude Include="IManagedResource.h" />
-    <ClInclude Include="IParticle.h" />
     <ClInclude Include="IParticleEmitter.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

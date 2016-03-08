@@ -11,7 +11,11 @@ namespace tle
 	private:
 		std::unordered_map<string, IMesh*> mMeshMap;
 		vector_ptr<CAnimation> mAnimations;
+
+		//Particles & Emitters
+		list_ptr<CParticle> mParticles;
 		vector_ptr<CParticleEmitter> mEmitters;
+		vector_ptr<CParticleEmitter> mDyingEmitters;
 
 		bool mAutoUpdate;
 
@@ -52,7 +56,7 @@ namespace tle
 							const CVector3& position	= CVector3(0.0f, 0.0f, 0.0f),	/*Default location is the origin*/
 							const float		tickRate	= 0.1f,							/*Default rate is 10 frames per second*/
 							const bool		looped		= true							/*Set to loop the frames by default*/
-							);
+						);
 
 		//Creates an animation at the given location
 		//Runs through the frames at a tick rate
@@ -61,7 +65,7 @@ namespace tle
 							const CVector3& position	= CVector3(0.0f, 0.0f, 0.0f),	/*Default location is the origin*/
 							const float		tickRate	= 0.1f,							/*Default rate is 10 frames per second*/
 							const bool		looped		= true							/*Set to loop the frames by default*/
-							);
+						);
 
 		//Remove the animation if it exists
 		virtual void RemoveAnimation(IAnimation* pAnimation);
@@ -70,20 +74,29 @@ namespace tle
 		//Particle Emitter//
 
 		//Create a particle emitter at the given location
-		virtual IParticleEmitter* CreateEmitter();
+		virtual IParticleEmitter* CreateEmitter(EEmissionType type, const string& particleSprite,
+							const float		emissionRate	= 0.01f,						/*Default spawn rate of the particles*/
+							const CVector3& position		= CVector3(0.0f, 0.0f, 0.0f)	/*Default location is the origin*/
+						);
 
 		//Remove the particle emitter if it exists
 		virtual void RemoveEmitter(IParticleEmitter* emitter);
+
+		//Gives a pointer to a particle object
+		virtual CParticle* GetParticle();
+
+		//Adds the particle to the unused particle list
+		virtual void ReturnParticle(CParticle* pParticle);
 
 		/***************************************************
 						Additional Controls
 		****************************************************/
 
 		//Pauses any auto updated entity eg animations and particles
-		virtual void PauseAnimations();
+		virtual void PauseAutoUpdates();
 
 		//Unpauses any auto updated entities eg animations and particles
-		virtual void UnpauseAnimations();
+		virtual void UnpauseAutoUpdates();
 
 		/***************************************************
 							Destructor

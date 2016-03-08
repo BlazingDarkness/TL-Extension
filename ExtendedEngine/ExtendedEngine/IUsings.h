@@ -13,4 +13,7 @@ namespace tle
 
 	template<class T>
 	using list_ptr = std::list<std::unique_ptr<T>>;
+
+	const string PARTICLE_MODEL;
+	const string PARTICLE_TEXTURE = "Transparent.png";
 }

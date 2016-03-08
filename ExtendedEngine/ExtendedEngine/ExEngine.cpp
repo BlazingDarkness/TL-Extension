@@ -86,14 +86,32 @@ namespace tle
 
 		if (mAutoUpdate)
 		{
+			//Update animations
 			for (auto animation = mAnimations.begin(); animation != mAnimations.end(); animation++)
 			{
 				(*animation)->Update(frameTime);
 			}
 
+			//Update emitters
 			for (auto emitter = mEmitters.begin(); emitter != mEmitters.end(); emitter++)
 			{
 				(*emitter)->Update(frameTime);
+			}
+
+			//Update dying emitters
+			for (auto emitter = mDyingEmitters.begin(); emitter != mEmitters.end(); /*Only increment if no erase occurs*/)
+			{
+				(*emitter)->Update(frameTime);
+
+				//Erase if dead
+				if (!(*emitter)->HasActiveParticles())
+				{
+					emitter = mDyingEmitters.erase(emitter);
+				}
+				else
+				{
+					emitter++;
+				}
 			}
 		}
 
@@ -181,10 +199,16 @@ namespace tle
 	//Particle Emitter//
 
 	//Create a particle emitter at the given location
-	IParticleEmitter* ExEngine::CreateEmitter()
+	IParticleEmitter* ExEngine::CreateEmitter(EEmissionType type, const string& particleSprite, const float emissionRate, const CVector3& position)
 	{
-		//Todo
-		return 0;
+		tlx::ICamera* node = m_pSceneManager->CreateCamera();
+
+		CParticleEmitter* emitter = new CParticleEmitter(type, emissionRate, node, m_pSceneManager, this);
+		emitter->SetPosition(position.x, position.y, position.z);
+
+		mEmitters.push_back(std::unique_ptr<CParticleEmitter>(emitter));
+
+		return emitter;
 	}
 
 	//Remove the particle emitter if it exists
@@ -194,10 +218,36 @@ namespace tle
 		{
 			if (emitter == it->get())
 			{
+				if ((*it)->HasActiveParticles())
+				{
+					mDyingEmitters.push_back(move(*it));
+				}
 				mEmitters.erase(it);
 				return;
 			}
 		}
+	}
+
+	//Gives a pointer to a particle object
+	CParticle* ExEngine::GetParticle()
+	{
+		if (mParticles.size() > 0)
+		{
+			CParticle* p = mParticles.back().release();
+			mParticles.pop_back();
+			return p;
+		}
+		else
+		{
+			IMesh* particleMesh = ExEngine::LoadMesh("Quad.x");
+			return new CParticle(particleMesh);
+		}
+	}
+
+	//Adds the particle to the unused particle list
+	void ExEngine::ReturnParticle(CParticle* pParticle)
+	{
+		mParticles.push_back(std::unique_ptr<CParticle>(pParticle));
 	}
 
 	/***************************************************
@@ -205,13 +255,13 @@ namespace tle
 	****************************************************/
 
 	//Pauses any auto updated entity eg animations and particles
-	void ExEngine::PauseAnimations()
+	void ExEngine::PauseAutoUpdates()
 	{
 		mAutoUpdate = false;
 	}
 
 	//Unpauses any auto updated entities eg animations and particles
-	void ExEngine::UnpauseAnimations()
+	void ExEngine::UnpauseAutoUpdates()
 	{
 		mAutoUpdate = true;
 	}
@@ -225,7 +275,12 @@ namespace tle
 	{
 		mAnimations.clear();
 		mEmitters.clear();
+		mDyingEmitters.clear();
 
+		//Must be after the emitters
+		mParticles.clear();
+
+		//Must be done last
 		for (auto it = mMeshMap.begin(); it != mMeshMap.end(); it++)
 		{
 			CTLXEngineMod::RemoveMesh((*it).second);

@@ -1,7 +1,6 @@
 #pragma once
 #include "IParticleEmitter.h"
 #include "TLXSceneNode.h"
-#include "IUpdateable.h"
 #include "ISceneManager.h"
 #include "ICamera.h"
 #include "CParticle.h"
@@ -15,12 +14,13 @@ namespace tle
 	{
 	private:
 		//Emitter data
-		EmissionType mType;
+		EEmissionType mType;
 		float mRate;
 		float mTimer;
 		bool mPaused;
 
 		//Particle data
+		ParticleData mParticleData;
 
 		//Shit
 		tlx::ISceneManager* mpSceneManager;
@@ -32,7 +32,7 @@ namespace tle
 		list_ptr<CParticle> mActive;
 
 	public:
-		CParticleEmitter(EmissionType type, float rate, tlx::ICamera* positionNode, tlx::ISceneManager* sceneManager, ExEngine* engine);
+		CParticleEmitter(EEmissionType type, float rate, tlx::ICamera* positionNode, tlx::ISceneManager* sceneManager, ExEngine* engine);
 
 		/************************************
 				  Update Controls
@@ -44,8 +44,12 @@ namespace tle
 		//Stops the emitter spawning particles
 		virtual void Stop();
 
-		//Removes all the emitter's particles
+		//Sets all particles to the despawned (inactive) state
 		virtual void Reset();
+
+		//Clears local cache of particles
+		//Returns all particles back to the engine
+		virtual void Clear();
 
 		//Do not call
 		//Called from the engine to auto update the particles and emitter
@@ -60,21 +64,38 @@ namespace tle
 						Sets
 		*************************************/
 
-		virtual void SetEmissionType(EmissionType type);
+		virtual void SetEmissionType(EEmissionType type);
 		virtual void SetEmissionRate(float rate);
+
 		virtual void SetParticleLife(float life);
+		virtual void SetParticleSkin(string& skin);
+		virtual void SetParticleVelocity(CVector3& vel);
+		virtual void SetParticleAcceleration(CVector3& acl);
+		virtual void SetParticleScale(float scale);
 
 		/************************************
 						Gets
 		*************************************/
 
-		virtual EmissionType GetEmissionType();
+		virtual EEmissionType GetEmissionType();
 		virtual float GetEmissionRate();
-		virtual void GetParticleLife(float life);
 
+		virtual float GetParticleLife();
+		virtual string GetParticleSkin();
+		virtual CVector3 GetParticleVelocity();
+		virtual CVector3 GetParticleAcceleration();
+		virtual float GetParticleScale();
+
+		//Returns true is the emitter is emitting particles
 		virtual bool IsEmitting();
 
-		//Destroy all life
+		//Returns true if one or more of the emitter particles are still active
+		virtual bool HasActiveParticles();
+
+		/************************************
+				 Goodbye Cruel World
+		*************************************/
+
 		virtual ~CParticleEmitter();
 	};
 }

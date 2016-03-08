@@ -3,63 +3,97 @@
 
 namespace tle
 {
-	CParticle::CParticle()
+	//Creates a particle model from the mesh
+	CParticle::CParticle(IMesh* mesh)
 	{
+		mpMesh = mesh;
+		mpModel = mpMesh->CreateModel();
+
+		mLife = 0.0f;
+		mVel = CVector3(0.0f, 0.0f, 0.0f);
+		mpData = 0;
 	}
 
+	/********************************
+			  Control stuff
+	*********************************/
+
+	//Updates the particle velocity, life, and location
 	void CParticle::Update(float delta)
 	{
-		mVel += mpData->mAcl;
+		mLife -= delta;
+		
+		if (mpData)
+		{
+			mVel += mpData->mAcl;
+		}
+
 		mpModel->MoveLocal(mVel.x, mVel.y, mVel.z);
 	}
 
-	bool CParticle::IsFinished()
-	{
-		return mLife < 0.0f;
-	}
-
-	void CParticle::Hide()
-	{
-		mpModel->SetPosition(mpData->mOffScreen.x,
-							 mpData->mOffScreen.y,
-							 mpData->mOffScreen.z);
-	}
-
+	//Reset the velocity and health of the particle
 	void CParticle::Reset()
 	{
 		if (mpData)
 		{
-			mLife = mpData->maxLife;
+			mLife = mpData->mMaxLife;
 			mVel = mpData->mVel;
-			if (mpData->mpTextures)
-			{
-				if (mpData->mpTextures->size())
-				{
-					mpModel->SetSkin((*(mpData->mpTextures))[0]);
-				}
-			}
+		}
+		else
+		{
+			mLife = 0.0f;
+			mVel = CVector3(0.0f, 0.0f, 0.0f);
 		}
 	}
 
+	//Hides the particle at the position specified
+	void CParticle::HideAt(CVector3& position)
+	{
+		mpModel->SetPosition(position.x,
+							 position.y,
+							 position.z);
+	}
+
+	/********************************
+				   Sets
+	*********************************/
+
+	//Sets the particle data and updates the private data
 	void CParticle::SetData(ParticleData* data)
 	{
-		if (!mpData && data)
+		mpData = data;
+		if (mpData)
 		{
-			mpData = data;
-			mpModel = mpData->mpMesh->CreateModel();
-			mpModel->Scale(mpData->mScale);
-			mLife = mpData->maxLife;
+			mLife = mpData->mMaxLife;
 			mVel = mpData->mVel;
+			mpModel->SetSkin(mpData->mTexture);
+			mpModel->ResetScale();
+			mpModel->Scale(mpData->mScale);
 		}
 	}
 
+	//Sets the particle's position/rotation matrix
 	void CParticle::SetMatrix(float* matrix)
 	{
-		if (mpModel) mpModel->SetMatrix(matrix);
+		mpModel->SetMatrix(matrix);
 	}
 
-	ParticleData* CParticle::GetData()
+	/********************************
+				   Gets
+	*********************************/
+
+	//Checks if the particle is dead
+	bool CParticle::IsDead()
 	{
-		return mpData;
+		return mLife < 0.0f;
+	}
+
+	/********************************
+			Destroyer of worlds
+	*********************************/
+
+	CParticle::~CParticle()
+	{
+		mpMesh->RemoveModel(mpModel);
 	}
 }
