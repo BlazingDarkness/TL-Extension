@@ -8,7 +8,7 @@ namespace tle
 	{
 		mType = type;
 
-		mParticleData.maxLife = 0.0f;
+		mParticleData.mMaxLife = 0.0f;
 		mParticleData.mScale = 1.0f;
 		mParticleData.mVel = CVector3(0.0f, 0.0f, 0.0f);
 		mParticleData.mAcl = CVector3(0.0f, 0.0f, 0.0f);
@@ -72,31 +72,51 @@ namespace tle
 	//Called from the engine to auto update the particles and emitter
 	void CParticleEmitter::Update(float delta)
 	{
-		mTimer += delta;
-		while (mTimer > mRate)
+		//Update spawning if not paused
+		//Also don't spawn anything if the spawn rate is faster than the limit
+		if (!mPaused && mRate > FASTEST_EMISSION_RATE)
 		{
-			mTimer -= mRate;
-
-			CParticle* particle;
-			float matrix[16];
-			GetMatrix(matrix);
-
-			//Get an unused particle
-			if (mInactive.size() > 0)
+			mTimer += delta;
+			while (mTimer > mRate)
 			{
-				particle = mInactive.back().release();
-				mInactive.pop_back();
+				mTimer -= mRate;
+
+				CParticle* particle;
+				float matrix[16];
+				GetMatrix(matrix);
+
+				//Get an unused particle
+				if (mInactive.size() > 0)
+				{
+					particle = mInactive.back().release();
+					mInactive.pop_back();
+				}
+				else
+				{
+					particle = mpEngine->GetParticle();
+				}
+
+				//Set particle data and location
+				particle->SetMatrix(matrix);
+				particle->SetData(&mParticleData);
+
+				mActive.push_back(std::unique_ptr<CParticle>(particle));
+			}
+		}
+
+		//Update particles and remove those that are dead
+		for (auto particle = mActive.begin(); particle != mActive.end(); /*Only iterate if no erase occurs*/)
+		{
+			(*particle)->Update(delta);
+			if ((*particle)->IsDead())
+			{
+				mInactive.push_back( move(*particle) );
+				particle = mActive.erase(particle);
 			}
 			else
 			{
-				particle = mpEngine->GetParticle();
+				particle++;
 			}
-
-			//Set particle data and location
-			particle->SetMatrix(matrix);
-			particle->SetData(&mParticleData);
-
-			mActive.push_back(std::unique_ptr<CParticle>(particle));
 		}
 	}
 
@@ -106,6 +126,27 @@ namespace tle
 	void CParticleEmitter::OrientateParticles(ICamera* camera)
 	{
 		//Todo
+
+		//Well s***, I've made a mistake here.
+		//Particles move on the local axis, so rotating them to
+		//face the camera will change their direction
+		//
+		//Solution would be to use a dummy model to move the particle
+		//therefore allowing the attached quad model to be rotated
+		//freely without affecting movement
+
+		float matrix[16];
+
+		camera->GetMatrix(matrix);
+
+		CVector3 pos((matrix[0] * -100.0f) + camera->GetX(),
+					 (matrix[1] * -100.0f) + camera->GetY(),
+					 (matrix[2] * -100.0f) + camera->GetZ());
+
+		for (auto particle = mInactive.begin(); particle != mInactive.end(); ++particle)
+		{
+			(*particle)->HideAt(pos);
+		}
 	}
 
 	/************************************
@@ -115,6 +156,11 @@ namespace tle
 	void CParticleEmitter::SetEmissionType(EEmissionType type)
 	{
 		mType = type;
+	}
+
+	void CParticleEmitter::SetEmissionAngle(float angle)
+	{
+		mAngle = angle;
 	}
 
 	void CParticleEmitter::SetEmissionRate(float rate)
@@ -147,9 +193,18 @@ namespace tle
 		mParticleData.mScale = scale;
 	}
 
+	/************************************
+					Gets
+	*************************************/
+
 	EEmissionType CParticleEmitter::GetEmissionType()
 	{
 		return mType;
+	}
+
+	float CParticleEmitter::GetEmissionAngle()
+	{
+		return mAngle;
 	}
 
 	float CParticleEmitter::GetEmissionRate()
@@ -157,11 +212,30 @@ namespace tle
 		return mRate;
 	}
 
-	float CParticleEmitter::GetParticleLife();
-	string CParticleEmitter::GetParticleSkin();
-	CVector3 CParticleEmitter::GetParticleVelocity();
-	CVector3 CParticleEmitter::GetParticleAcceleration();
-	float CParticleEmitter::GetParticleScale();
+	float CParticleEmitter::GetParticleLife()
+	{
+		return mParticleData.mMaxLife;
+	}
+
+	string CParticleEmitter::GetParticleSkin()
+	{
+		return mParticleData.mTexture;
+	}
+
+	CVector3 CParticleEmitter::GetParticleVelocity()
+	{
+		return mParticleData.mVel;
+	}
+
+	CVector3 CParticleEmitter::GetParticleAcceleration()
+	{
+		return mParticleData.mAcl;
+	}
+
+	float CParticleEmitter::GetParticleScale()
+	{
+		return mParticleData.mScale;
+	}
 
 	//Returns true is the emitter is emitting particles
 	bool CParticleEmitter::IsEmitting()

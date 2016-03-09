@@ -30,5 +30,7 @@ namespace tle
 		virtual void MoveY(float yMovement) = 0;
 		virtual void MoveZ(float zMovement) = 0;
 		virtual void Move(const tlx::CVector3& movement) = 0;
+
+		virtual ~IAnimation() {}
 	};
 }
