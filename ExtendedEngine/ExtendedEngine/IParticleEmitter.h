@@ -1,7 +1,8 @@
 #pragma once
 #include <SceneNode.h>
 #include <Mesh.h>
-#include <CVector3.h>
+#include <Camera.h>
+#include "IUsings.h"
 
 namespace tle
 {
@@ -111,10 +112,10 @@ namespace tle
 		virtual string GetParticleSkin() = 0;
 
 		//Returns the base velocity of the particles
-		virtual CVector3 GetParticleVelocity() = 0;
+		virtual tlx::CVector3 GetParticleVelocity() = 0;
 
 		//Returns the acceleration of the particles
-		virtual CVector3 GetParticleAcceleration() = 0;
+		virtual tlx::CVector3 GetParticleAcceleration() = 0;
 
 		//Returns the scale of the particle quad model
 		virtual float GetParticleScale() = 0;

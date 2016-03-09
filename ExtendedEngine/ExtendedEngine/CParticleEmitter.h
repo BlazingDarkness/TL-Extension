@@ -126,19 +126,19 @@ namespace tle
 		//Particle//
 
 		//Returns how long the particles live
-		virtual float GetParticleLife() = 0;
+		virtual float GetParticleLife();
 
 		//Returns the texture used for the particle's quad model
-		virtual string GetParticleSkin() = 0;
+		virtual string GetParticleSkin();
 
 		//Returns the base velocity of the particles
-		virtual CVector3 GetParticleVelocity() = 0;
+		virtual CVector3 GetParticleVelocity();
 
 		//Returns the acceleration of the particles
-		virtual CVector3 GetParticleAcceleration() = 0;
+		virtual CVector3 GetParticleAcceleration();
 
 		//Returns the scale of the particle quad model
-		virtual float GetParticleScale() = 0;
+		virtual float GetParticleScale();
 
 		/************************************
 				 Goodbye Cruel World
