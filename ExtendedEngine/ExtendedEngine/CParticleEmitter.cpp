@@ -97,6 +97,9 @@ namespace tle
 				}
 
 				//Set particle data and location
+				matrix[12] = GetX();
+				matrix[13] = GetY();
+				matrix[14] = GetZ();
 				particle->SetMatrix(matrix);
 				particle->SetData(&mParticleData);
 
@@ -173,17 +176,17 @@ namespace tle
 		mParticleData.mMaxLife = life;
 	}
 
-	void CParticleEmitter::SetParticleSkin(string& skin)
+	void CParticleEmitter::SetParticleSkin(const string& skin)
 	{
 		mParticleData.mTexture = skin;
 	}
 	
-	void CParticleEmitter::SetParticleVelocity(CVector3& vel)
+	void CParticleEmitter::SetParticleVelocity(const CVector3& vel)
 	{
 		mParticleData.mVel = vel;
 	}
 	
-	void CParticleEmitter::SetParticleAcceleration(CVector3& acl)
+	void CParticleEmitter::SetParticleAcceleration(const CVector3& acl)
 	{
 		mParticleData.mAcl = acl;
 	}

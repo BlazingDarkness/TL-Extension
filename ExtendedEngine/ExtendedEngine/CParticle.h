@@ -23,6 +23,7 @@ namespace tle
 		ParticleData* mpData;
 
 	public:
+		static int count;
 		//Creates a particle model from the mesh
 		CParticle(IMesh* quad);
 

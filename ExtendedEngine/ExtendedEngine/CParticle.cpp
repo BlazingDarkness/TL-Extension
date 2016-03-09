@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include "CParticle.h"
+#include <iostream>
 
 namespace tle
 {
+	int CParticle::count = 0;
+
 	//Creates a particle model from the mesh
 	CParticle::CParticle(IMesh* mesh)
 	{
@@ -12,6 +15,7 @@ namespace tle
 		mLife = 0.0f;
 		mVel = CVector3(0.0f, 0.0f, 0.0f);
 		mpData = 0;
+		count++;
 	}
 
 	/********************************
@@ -76,6 +80,7 @@ namespace tle
 	void CParticle::SetMatrix(float* matrix)
 	{
 		mpModel->SetMatrix(matrix);
+		//std::cout << "Particle Created at: (" << matrix[12] << ',' << matrix[13] << ',' << matrix[14] << ')' << std::endl;
 	}
 
 	/********************************
@@ -95,5 +100,6 @@ namespace tle
 	CParticle::~CParticle()
 	{
 		mpMesh->RemoveModel(mpModel);
+		count--;
 	}
 }

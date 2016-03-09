@@ -8,7 +8,7 @@ namespace tle
 {
 	class IEngine : public I3DEngine
 	{
-
+	public:
 		/***************************************************
 							New functions
 		****************************************************/
@@ -41,7 +41,8 @@ namespace tle
 		//Particle Emitter//
 
 		//Create a particle emitter at the given location
-		virtual IParticleEmitter* CreateEmitter(EEmissionType type, const string& particleSprite,
+		virtual IParticleEmitter* CreateEmitter(EEmissionType type,
+								const string& particleSprite = PARTICLE_TEXTURE,			/*Default texture is Transparent.png*/
 								const float		emissionRate = 0.01f,						/*Default spawn rate of the particles*/
 								const CVector3& position	 = CVector3(0.0f, 0.0f, 0.0f)	/*Default location is the origin*/
 							) = 0;

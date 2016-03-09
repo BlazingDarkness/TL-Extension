@@ -86,15 +86,15 @@ namespace tle
 		virtual void SetParticleLife(float life);
 
 		//Set the texture used for the particle's quad model
-		virtual void SetParticleSkin(string& skin);
+		virtual void SetParticleSkin(const string& skin);
 
 		//Set the base velocity of the particles
 		//Does not retroactively change velcoity of existing particles
-		virtual void SetParticleVelocity(CVector3& vel);
+		virtual void SetParticleVelocity(const CVector3& vel);
 
 		//Set the acceleration of the particles
 		//Also changes acceleration of existing particles
-		virtual void SetParticleAcceleration(CVector3& acl);
+		virtual void SetParticleAcceleration(const CVector3& acl);
 
 		//Set the scale of the particle quad model
 		//Does not retroactively change scale of existing particles

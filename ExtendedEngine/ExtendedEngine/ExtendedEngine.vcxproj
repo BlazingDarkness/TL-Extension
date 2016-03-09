@@ -74,10 +74,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(DXSDK_DIR)\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\lib\x86;$(LibraryPath)</LibraryPath>
+    <TargetName>ExtendedEngineDebug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(DXSDK_DIR)\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\lib\x86;$(LibraryPath)</LibraryPath>
+    <TargetName>ExtendedEngineRelease</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -88,6 +90,7 @@
       <SDLCheck>
       </SDLCheck>
       <AdditionalIncludeDirectories>C:\ProgramData\TL-Engine\include;C:\ProgramData\TL-Engine\Source\3DEngine;C:\ProgramData\TL-Engine\Source\Common;C:\ProgramData\TL-Engine\3rd Party\TL-Xtreme\include;C:\ProgramData\TL-Engine\3rd Party\irrlicht-0.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

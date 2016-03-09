@@ -64,12 +64,30 @@ namespace tle
 		}
 
 		//If a camera is still not selected then skip the updating of the particle locations/orientation
-		if (!pCamera)
+		if (pCamera)
 		{
-			//Todo - Make particle emitters's particles face the camera
+			//Make particle emitters's particles face the camera
 			for (auto emitter = mEmitters.begin(); emitter != mEmitters.end(); emitter++)
 			{
 				(*emitter)->OrientateParticles(pCamera);
+			}
+			for (auto emitter = mDyingEmitters.begin(); emitter != mDyingEmitters.end(); emitter++)
+			{
+				(*emitter)->OrientateParticles(pCamera);
+			}
+
+			//Hide unused particles
+			float matrix[16];
+
+			pCamera->GetMatrix(matrix);
+
+			CVector3 pos((matrix[0] * -100.0f) + pCamera->GetX(),
+				(matrix[1] * -100.0f) + pCamera->GetY(),
+				(matrix[2] * -100.0f) + pCamera->GetZ());
+
+			for (auto particle = mParticles.begin(); particle != mParticles.end(); ++particle)
+			{
+				(*particle)->HideAt(pos);
 			}
 		}
 
@@ -82,6 +100,8 @@ namespace tle
 	float ExEngine::Timer()
 	{
 		float frameTime = CTLXEngineMod::Timer();
+
+		std::cout << "Particles: " << CParticle::count << " FPS:" << (1.0f / frameTime) << std::endl;
 
 		if (mAutoUpdate)
 		{
@@ -98,7 +118,7 @@ namespace tle
 			}
 
 			//Update dying emitters
-			for (auto emitter = mDyingEmitters.begin(); emitter != mEmitters.end(); /*Only increment if no erase occurs*/)
+			for (auto emitter = mDyingEmitters.begin(); emitter != mDyingEmitters.end(); /*Only increment if no erase occurs*/)
 			{
 				(*emitter)->Update(frameTime);
 
@@ -204,6 +224,7 @@ namespace tle
 
 		CParticleEmitter* emitter = new CParticleEmitter(type, emissionRate, node, m_pSceneManager, this);
 		emitter->SetPosition(position.x, position.y, position.z);
+		emitter->SetParticleSkin(particleSprite);
 
 		mEmitters.push_back(std::unique_ptr<CParticleEmitter>(emitter));
 
@@ -246,7 +267,15 @@ namespace tle
 	//Adds the particle to the unused particle list
 	void ExEngine::ReturnParticle(CParticle* pParticle)
 	{
-		mParticles.push_back(std::unique_ptr<CParticle>(pParticle));
+		//Only keep a pool of maximum 500 particles
+		if (mParticles.size() > 500)
+		{
+			delete pParticle;
+		}
+		else
+		{
+			mParticles.push_back(std::unique_ptr<CParticle>(pParticle));
+		}
 	}
 
 	/***************************************************
