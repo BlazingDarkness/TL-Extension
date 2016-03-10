@@ -88,6 +88,9 @@ namespace tle
 		//Set the texture used for the particle's quad model
 		virtual void SetParticleSkin(const string& skin);
 
+		//Set the texture used for the particle's quad model
+		virtual void SetParticleSkin(const std::vector<string>& skin);
+
 		//Set the base velocity of the particles
 		//Does not retroactively change velcoity of existing particles
 		virtual void SetParticleVelocity(const CVector3& vel);

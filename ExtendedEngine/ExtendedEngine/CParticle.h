@@ -8,9 +8,10 @@ namespace tle
 	public:
 		float mMaxLife;
 		float mScale;
+		float mAnimationRate; //Only used if there are multiple textures
 		CVector3 mVel;
 		CVector3 mAcl;
-		string mTexture;
+		std::vector<string> mTexture;
 	};
 
 	class CParticle
@@ -21,6 +22,8 @@ namespace tle
 		IMesh* mpMesh;
 		IModel* mpModel;
 		ParticleData* mpData;
+		float mTextureTimer;
+		int mTextureIndex;
 
 	public:
 		static int count;

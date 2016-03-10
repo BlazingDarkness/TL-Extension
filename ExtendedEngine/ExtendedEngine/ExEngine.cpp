@@ -101,7 +101,7 @@ namespace tle
 	{
 		float frameTime = CTLXEngineMod::Timer();
 
-		std::cout << "Particles: " << CParticle::count << " FPS:" << (1.0f / frameTime) << std::endl;
+		//std::cout << "Particles: " << CParticle::count << " FPS:" << (1.0f / frameTime) << std::endl;
 
 		if (mAutoUpdate)
 		{
@@ -219,6 +219,20 @@ namespace tle
 
 	//Create a particle emitter at the given location
 	IParticleEmitter* ExEngine::CreateEmitter(EEmissionType type, const string& particleSprite, const float emissionRate, const CVector3& position)
+	{
+		tlx::ICamera* node = m_pSceneManager->CreateCamera();
+
+		CParticleEmitter* emitter = new CParticleEmitter(type, emissionRate, node, m_pSceneManager, this);
+		emitter->SetPosition(position.x, position.y, position.z);
+		emitter->SetParticleSkin(particleSprite);
+
+		mEmitters.push_back(std::unique_ptr<CParticleEmitter>(emitter));
+
+		return emitter;
+	}
+
+	//Create a particle emitter at the given location
+	IParticleEmitter* ExEngine::CreateEmitter(EEmissionType type, const std::vector<string>& particleSprite, const float emissionRate, const CVector3& position)
 	{
 		tlx::ICamera* node = m_pSceneManager->CreateCamera();
 

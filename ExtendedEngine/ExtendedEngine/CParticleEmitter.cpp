@@ -10,9 +10,10 @@ namespace tle
 
 		mParticleData.mMaxLife = 0.0f;
 		mParticleData.mScale = 1.0f;
+		mParticleData.mAnimationRate = 1.0f;
 		mParticleData.mVel = CVector3(0.0f, 0.0f, 0.0f);
 		mParticleData.mAcl = CVector3(0.0f, 0.0f, 0.0f);
-		mParticleData.mTexture = PARTICLE_TEXTURE;
+		mParticleData.mTexture = vector<string>(1, PARTICLE_TEXTURE);
 
 		mRate = rate;
 		mTimer = 0.0f;
@@ -79,7 +80,9 @@ namespace tle
 			mTimer += delta;
 			while (mTimer > mRate)
 			{
-				mTimer -= mRate;
+				do {
+					mTimer -= mRate;
+				} while (mTimer > mParticleData.mMaxLife); //No point in making a particle that is already dead
 
 				CParticle* particle;
 				float matrix[16];
@@ -102,6 +105,9 @@ namespace tle
 				matrix[14] = GetZ();
 				particle->SetMatrix(matrix);
 				particle->SetData(&mParticleData);
+
+				//Move it by the amount of time passed since it should of been created
+				particle->Update(mTimer);
 
 				mActive.push_back(std::unique_ptr<CParticle>(particle));
 			}
@@ -174,10 +180,19 @@ namespace tle
 	void CParticleEmitter::SetParticleLife(float life)
 	{
 		mParticleData.mMaxLife = life;
+		mParticleData.mAnimationRate = life / static_cast<int>(mParticleData.mTexture.size());
 	}
 
 	void CParticleEmitter::SetParticleSkin(const string& skin)
 	{
+		mParticleData.mTexture.clear();
+		mParticleData.mTexture.push_back(skin);
+	}
+
+	//Set the texture used for the particle's quad model
+	void CParticleEmitter::SetParticleSkin(const std::vector<string>& skin)
+	{
+		mParticleData.mAnimationRate = mParticleData.mMaxLife / static_cast<int>(skin.size());
 		mParticleData.mTexture = skin;
 	}
 	
@@ -222,7 +237,8 @@ namespace tle
 
 	string CParticleEmitter::GetParticleSkin()
 	{
-		return mParticleData.mTexture;
+		//Assumes that there is always at least one texture
+		return mParticleData.mTexture[0];
 	}
 
 	CVector3 CParticleEmitter::GetParticleVelocity()

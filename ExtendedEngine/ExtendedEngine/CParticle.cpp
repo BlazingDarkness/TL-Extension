@@ -27,9 +27,19 @@ namespace tle
 	{
 		mLife -= delta;
 		
+		if (mLife <= 0.0f) return;
+
 		if (mpData)
 		{
 			mVel += mpData->mAcl;
+			mTextureTimer += delta;
+
+			if (mTextureTimer > mpData->mAnimationRate)
+			{
+				mTextureTimer -= mpData->mAnimationRate;
+				mTextureIndex++;
+				mpModel->SetSkin(mpData->mTexture[mTextureIndex]);
+			}
 		}
 
 		mpModel->MoveLocal(mVel.x, mVel.y, mVel.z);
@@ -38,10 +48,14 @@ namespace tle
 	//Reset the velocity and health of the particle
 	void CParticle::Reset()
 	{
+		mTextureIndex = 0;
+		mTextureTimer = 0.0f;
+
 		if (mpData)
 		{
 			mLife = mpData->mMaxLife;
 			mVel = mpData->mVel;
+			if (mpData->mTexture.size() > 0) mpModel->SetSkin(mpData->mTexture[0]);
 		}
 		else
 		{
@@ -68,9 +82,7 @@ namespace tle
 		mpData = data;
 		if (mpData)
 		{
-			mLife = mpData->mMaxLife;
-			mVel = mpData->mVel;
-			mpModel->SetSkin(mpData->mTexture);
+			Reset();
 			mpModel->ResetScale();
 			mpModel->Scale(mpData->mScale);
 		}
