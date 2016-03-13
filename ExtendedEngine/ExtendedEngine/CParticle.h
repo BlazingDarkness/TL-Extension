@@ -3,6 +3,9 @@
 #include "IEngine.h"
 namespace tle
 {
+	//Hacky work around to avoid circular reference
+	class ExEngine;
+
 	struct ParticleData
 	{
 	public:
@@ -19,16 +22,16 @@ namespace tle
 	private:
 		float mLife;
 		CVector3 mVel;
-		IMesh* mpMesh;
 		IModel* mpModel;
 		ParticleData* mpData;
 		float mTextureTimer;
 		int mTextureIndex;
 
+		ExEngine* mpEngine;
+
 	public:
-		static int count;
 		//Creates a particle model from the mesh
-		CParticle(IMesh* quad);
+		CParticle(ParticleData* data, ExEngine* engine);
 
 		/********************************
 				  Control stuff
@@ -46,9 +49,6 @@ namespace tle
 		/********************************
 					   Sets
 		*********************************/
-
-		//Sets the particle data and updates the private data
-		virtual void SetData(ParticleData* data);
 
 		//Sets the particle's position/rotation matrix
 		virtual void SetMatrix(float* matrix);

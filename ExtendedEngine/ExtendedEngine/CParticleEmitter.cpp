@@ -51,22 +51,10 @@ namespace tle
 	void CParticleEmitter::Clear()
 	{
 		//Return all active particles
-		while (mActive.size() > 0)
-		{
-			CParticle* particle = mActive.back().release();
-			mActive.pop_back();
-			particle->SetData(0);
-			mpEngine->ReturnParticle(particle);
-		}
+		mActive.clear();
 
 		//Return all inactive particles
-		while (mInactive.size() > 0)
-		{
-			CParticle* particle = mInactive.back().release();
-			mInactive.pop_back();
-			particle->SetData(0);
-			mpEngine->ReturnParticle(particle);
-		}
+		mInactive.clear();
 	}
 
 	//Do not call
@@ -87,24 +75,24 @@ namespace tle
 				CParticle* particle;
 				float matrix[16];
 				GetMatrix(matrix);
+				matrix[12] = GetX();
+				matrix[13] = GetY();
+				matrix[14] = GetZ();
 
 				//Get an unused particle
 				if (mInactive.size() > 0)
 				{
 					particle = mInactive.back().release();
 					mInactive.pop_back();
+					particle->Reset();
 				}
 				else
 				{
-					particle = mpEngine->GetParticle();
+					particle = new CParticle(&mParticleData, mpEngine);
 				}
 
 				//Set particle data and location
-				matrix[12] = GetX();
-				matrix[13] = GetY();
-				matrix[14] = GetZ();
 				particle->SetMatrix(matrix);
-				particle->SetData(&mParticleData);
 
 				//Move it by the amount of time passed since it should of been created
 				particle->Update(mTimer);
@@ -124,7 +112,7 @@ namespace tle
 			}
 			else
 			{
-				particle++;
+				++particle;
 			}
 		}
 	}
@@ -187,6 +175,7 @@ namespace tle
 	{
 		mParticleData.mTexture.clear();
 		mParticleData.mTexture.push_back(skin);
+		mParticleData.mAnimationRate = mParticleData.mMaxLife;
 	}
 
 	//Set the texture used for the particle's quad model

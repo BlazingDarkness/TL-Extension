@@ -13,9 +13,11 @@ namespace tle
 		vector_ptr<CAnimation> mAnimations;
 
 		//Particles & Emitters
-		list_ptr<CParticle> mParticles;
+		std::unordered_map<string, std::list<IModel*>> mParticleModels;
 		vector_ptr<CParticleEmitter> mEmitters;
 		vector_ptr<CParticleEmitter> mDyingEmitters;
+		IMesh* mParticleMesh;
+		int particleCount = 0;
 
 		bool mAutoUpdate;
 
@@ -90,11 +92,11 @@ namespace tle
 		//Remove the particle emitter if it exists
 		virtual void RemoveEmitter(IParticleEmitter* emitter);
 
-		//Gives a pointer to a particle object
-		virtual CParticle* GetParticle();
+		//Gives a pointer to a particle model (quad) that already has the given texture
+		virtual IModel* GetParticleModel(const string& texture);
 
-		//Adds the particle to the unused particle list
-		virtual void ReturnParticle(CParticle* pParticle);
+		//Adds an unused particle model to the cache
+		virtual void ReturnParticleModel(IModel* model, const string& texture);
 
 		/***************************************************
 						Additional Controls

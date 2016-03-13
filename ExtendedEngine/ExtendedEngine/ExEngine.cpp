@@ -19,6 +19,8 @@ namespace tle
 	ExEngine::ExEngine() : CTLXEngineMod()
 	{
 		mAutoUpdate = true;
+
+		mParticleMesh = 0;
 	}
 
 	//Removes the mesh if found, all models of the mesh will also be deleted
@@ -42,7 +44,7 @@ namespace tle
 	// If no camera is supplied, the most recently created camera is used.
 	void ExEngine::RemoveMesh(const IMesh* pMesh)
 	{
-		for (auto mesh = mMeshMap.begin(); mesh != mMeshMap.end(); mesh++)
+		for (auto mesh = mMeshMap.begin(); mesh != mMeshMap.end(); ++mesh)
 		{
 			if (pMesh == mesh->second)
 			{
@@ -67,11 +69,11 @@ namespace tle
 		if (pCamera)
 		{
 			//Make particle emitters's particles face the camera
-			for (auto emitter = mEmitters.begin(); emitter != mEmitters.end(); emitter++)
+			for (auto emitter = mEmitters.begin(); emitter != mEmitters.end(); ++emitter)
 			{
 				(*emitter)->OrientateParticles(pCamera);
 			}
-			for (auto emitter = mDyingEmitters.begin(); emitter != mDyingEmitters.end(); emitter++)
+			for (auto emitter = mDyingEmitters.begin(); emitter != mDyingEmitters.end(); ++emitter)
 			{
 				(*emitter)->OrientateParticles(pCamera);
 			}
@@ -85,9 +87,12 @@ namespace tle
 				(matrix[1] * -100.0f) + pCamera->GetY(),
 				(matrix[2] * -100.0f) + pCamera->GetZ());
 
-			for (auto particle = mParticles.begin(); particle != mParticles.end(); ++particle)
+			for (auto particleList = mParticleModels.begin(); particleList != mParticleModels.end(); ++particleList)
 			{
-				(*particle)->HideAt(pos);
+				for (auto particle = particleList->second.begin(); particle != particleList->second.end(); ++particle)
+				{
+					(*particle)->SetPosition(pos.x, pos.y, pos.z);
+				}
 			}
 		}
 
@@ -101,18 +106,18 @@ namespace tle
 	{
 		float frameTime = CTLXEngineMod::Timer();
 
-		//std::cout << "Particles: " << CParticle::count << " FPS:" << (1.0f / frameTime) << std::endl;
+		std::cout << "Particles: " << particleCount << " FPS:" << (1.0f / frameTime) << std::endl;
 
 		if (mAutoUpdate)
 		{
 			//Update animations
-			for (auto animation = mAnimations.begin(); animation != mAnimations.end(); animation++)
+			for (auto animation = mAnimations.begin(); animation != mAnimations.end(); ++animation)
 			{
 				(*animation)->Update(frameTime);
 			}
 
 			//Update emitters
-			for (auto emitter = mEmitters.begin(); emitter != mEmitters.end(); emitter++)
+			for (auto emitter = mEmitters.begin(); emitter != mEmitters.end(); ++emitter)
 			{
 				(*emitter)->Update(frameTime);
 			}
@@ -129,7 +134,7 @@ namespace tle
 				}
 				else
 				{
-					emitter++;
+					++emitter;
 				}
 			}
 		}
@@ -150,7 +155,7 @@ namespace tle
 	IAnimation* ExEngine::CreateAnimation(const std::vector<string>& frameList, const CVector3& position, const float tickRate, const bool looped)
 	{
 		SpriteVector sprites;
-		for (auto it = frameList.begin(); it != frameList.end(); it++)
+		for (auto it = frameList.begin(); it != frameList.end(); ++it)
 		{
 			ISprite* newSprite = CreateSprite(*it, position.x, position.y, position.z);
 
@@ -160,7 +165,7 @@ namespace tle
 				std::cout << "Could not load image file \"" + (*it) + "\" Aborting creation of IAnimation.";
 
 				//Remove sprites
-				for (auto sprite = sprites.begin(); sprite != sprites.end(); sprite++)
+				for (auto sprite = sprites.begin(); sprite != sprites.end(); ++sprite)
 				{
 					CTLXEngineMod::RemoveSprite(*sprite);
 				}
@@ -178,7 +183,7 @@ namespace tle
 	IAnimation* ExEngine::CreateAnimation(string& name, string& extension, int amount, const CVector3& position, const float tickRate, const bool looped)
 	{
 		SpriteVector sprites;
-		for (int i = 0; i < amount; i++)
+		for (int i = 0; i < amount; ++i)
 		{
 			string spriteFile = name + to_string(i) + extension;
 			ISprite* newSprite = CreateSprite(spriteFile, position.x, position.y, position.z);
@@ -189,7 +194,7 @@ namespace tle
 				std::cout << "Could not load image file \"" + spriteFile + "\" Aborting creation of IAnimation.";
 
 				//Remove sprites
-				for (auto sprite = sprites.begin(); sprite != sprites.end(); sprite++)
+				for (auto sprite = sprites.begin(); sprite != sprites.end(); ++sprite)
 				{
 					RemoveSprite(*sprite);
 				}
@@ -204,7 +209,7 @@ namespace tle
 	//Removes the animation if found
 	void ExEngine::RemoveAnimation(IAnimation* pAnimation)
 	{
-		for (auto animation = mAnimations.begin(); animation != mAnimations.end(); animation++)
+		for (auto animation = mAnimations.begin(); animation != mAnimations.end(); ++animation)
 		{
 			if ((*animation).get() == pAnimation)
 			{
@@ -248,7 +253,7 @@ namespace tle
 	//Remove the particle emitter if it exists
 	void ExEngine::RemoveEmitter(IParticleEmitter* emitter)
 	{
-		for (auto it = mEmitters.begin(); it != mEmitters.end(); it++)
+		for (auto it = mEmitters.begin(); it != mEmitters.end(); ++it)
 		{
 			if (emitter == it->get())
 			{
@@ -261,34 +266,52 @@ namespace tle
 			}
 		}
 	}
-
-	//Gives a pointer to a particle object
-	CParticle* ExEngine::GetParticle()
+	
+	//Gives a pointer to a particle model (quad) that already has the given texture
+	IModel* ExEngine::GetParticleModel(const string& texture)
 	{
-		if (mParticles.size() > 0)
+		IModel* model = 0;
+		auto iter = mParticleModels.find(texture);
+		if (iter != mParticleModels.end() && iter->second.size() > 0)
 		{
-			CParticle* p = mParticles.back().release();
-			mParticles.pop_back();
-			return p;
+			model = iter->second.back();
+			iter->second.pop_back();
 		}
 		else
 		{
-			IMesh* particleMesh = ExEngine::LoadMesh("Quad.x");
-			return new CParticle(particleMesh);
+			if (!mParticleMesh) mParticleMesh = ExEngine::LoadMesh(PARTICLE_MODEL);
+			model = mParticleMesh->CreateModel();
+			model->SetSkin(texture);
+			++particleCount;
 		}
+		return model;
 	}
 
-	//Adds the particle to the unused particle list
-	void ExEngine::ReturnParticle(CParticle* pParticle)
+	//Adds an unused particle model to the cache
+	void ExEngine::ReturnParticleModel(IModel* model, const string& texture)
 	{
-		//Only keep a pool of maximum 500 particles
-		if (mParticles.size() > 500)
+		auto iter = mParticleModels.find(texture);
+		if (iter != mParticleModels.end())
 		{
-			delete pParticle;
+#ifdef _DEBUG
+			if (iter->second.size() < 50)
+			{
+#endif // _DEBUG
+				iter->second.push_back(model);
+#ifdef _DEBUG
+			}
+			else
+			{
+				mParticleMesh->RemoveModel(model);
+				--particleCount;
+			}
+#endif // _DEBUG
 		}
 		else
 		{
-			mParticles.push_back(std::unique_ptr<CParticle>(pParticle));
+			std::list<IModel*> list;
+			list.push_back(model);
+			mParticleModels.insert(std::pair<string, std::list<IModel*>>{texture, list});
 		}
 	}
 
@@ -320,10 +343,17 @@ namespace tle
 		mDyingEmitters.clear();
 
 		//Must be after the emitters
-		mParticles.clear();
+		for (auto particleList = mParticleModels.begin(); particleList != mParticleModels.end(); ++particleList)
+		{
+			for (auto particle = particleList->second.begin(); particle != particleList->second.end(); ++particle)
+			{
+				mParticleMesh->RemoveModel(*particle);
+			}
+		}
+		mParticleMesh = 0; //It's destroyed by the below code
 
 		//Must be done last
-		for (auto it = mMeshMap.begin(); it != mMeshMap.end(); it++)
+		for (auto it = mMeshMap.begin(); it != mMeshMap.end(); ++it)
 		{
 			CTLXEngineMod::RemoveMesh((*it).second);
 		}

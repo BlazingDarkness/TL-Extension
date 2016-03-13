@@ -1,21 +1,25 @@
 #include "stdafx.h"
 #include "CParticle.h"
+#include "ExEngine.h"
 #include <iostream>
 
 namespace tle
 {
-	int CParticle::count = 0;
-
 	//Creates a particle model from the mesh
-	CParticle::CParticle(IMesh* mesh)
+	CParticle::CParticle(ParticleData* data, ExEngine* engine)
 	{
-		mpMesh = mesh;
-		mpModel = mpMesh->CreateModel();
+		mpEngine = engine;
+		mpData = data;
+		
+		mTextureIndex = 0;
+		mTextureTimer = 0.0f;
 
-		mLife = 0.0f;
-		mVel = CVector3(0.0f, 0.0f, 0.0f);
-		mpData = 0;
-		count++;
+		mpModel = engine->GetParticleModel(mpData->mTexture[mTextureIndex]);
+		mpModel->ResetScale();
+		mpModel->Scale(mpData->mScale);
+
+		mLife = mpData->mMaxLife;
+		mVel = mpData->mVel;
 	}
 
 	/********************************
@@ -29,64 +33,56 @@ namespace tle
 		
 		if (mLife <= 0.0f) return;
 
-		if (mpData)
+		mVel += mpData->mAcl;
+		mTextureTimer += delta;
+
+		while (mTextureTimer > mpData->mAnimationRate)
 		{
-			mVel += mpData->mAcl;
-			mTextureTimer += delta;
+			float matrix[16];
 
-			if (mTextureTimer > mpData->mAnimationRate)
-			{
-				mTextureTimer -= mpData->mAnimationRate;
-				mTextureIndex++;
-				mpModel->SetSkin(mpData->mTexture[mTextureIndex]);
-			}
+			mpModel->GetMatrix(matrix);
+			mpEngine->ReturnParticleModel(mpModel, mpData->mTexture[mTextureIndex]);
+
+			mTextureTimer -= mpData->mAnimationRate;
+			mTextureIndex++;
+
+			mpModel = mpEngine->GetParticleModel(mpData->mTexture[mTextureIndex]);
+			mpModel->SetMatrix(matrix);
+			mpModel->ResetScale();
+			mpModel->Scale(mpData->mScale);
 		}
-
+		
 		mpModel->MoveLocal(mVel.x, mVel.y, mVel.z);
 	}
 
 	//Reset the velocity and health of the particle
 	void CParticle::Reset()
 	{
+		mpEngine->ReturnParticleModel(mpModel, mpData->mTexture[mTextureIndex]);
+
 		mTextureIndex = 0;
 		mTextureTimer = 0.0f;
 
-		if (mpData)
-		{
-			mLife = mpData->mMaxLife;
-			mVel = mpData->mVel;
-			if (mpData->mTexture.size() > 0) mpModel->SetSkin(mpData->mTexture[0]);
-		}
-		else
-		{
-			mLife = 0.0f;
-			mVel = CVector3(0.0f, 0.0f, 0.0f);
-		}
+		mpModel = mpEngine->GetParticleModel(mpData->mTexture[mTextureIndex]);
+		mpModel->ResetScale();
+		mpModel->Scale(mpData->mScale);
+
+		mLife = mpData->mMaxLife;
+		mVel = mpData->mVel;
+
 	}
 
 	//Hides the particle at the position specified
 	void CParticle::HideAt(CVector3& position)
 	{
 		mpModel->SetPosition(position.x,
-							 position.y,
-							 position.z);
+								position.y,
+								position.z);
 	}
 
 	/********************************
 				   Sets
 	*********************************/
-
-	//Sets the particle data and updates the private data
-	void CParticle::SetData(ParticleData* data)
-	{
-		mpData = data;
-		if (mpData)
-		{
-			Reset();
-			mpModel->ResetScale();
-			mpModel->Scale(mpData->mScale);
-		}
-	}
 
 	//Sets the particle's position/rotation matrix
 	void CParticle::SetMatrix(float* matrix)
@@ -111,7 +107,16 @@ namespace tle
 
 	CParticle::~CParticle()
 	{
-		mpMesh->RemoveModel(mpModel);
-		count--;
+		//If there's a model then return it
+		if (mpModel)
+		{
+			//Get the relavent texture for the model
+			string texture = PARTICLE_TEXTURE;
+			if (static_cast<int>(mpData->mTexture.size()) > mTextureIndex)
+			{
+				texture = mpData->mTexture[mTextureIndex];
+			}
+			mpEngine->ReturnParticleModel(mpModel, texture);
+		}
 	}
 }

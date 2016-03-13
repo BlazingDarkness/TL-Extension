@@ -129,6 +129,7 @@
       <SDLCheck>
       </SDLCheck>
       <AdditionalIncludeDirectories>C:\ProgramData\TL-Engine\include;C:\ProgramData\TL-Engine\Source\3DEngine;C:\ProgramData\TL-Engine\Source\Common;C:\ProgramData\TL-Engine\3rd Party\TL-Xtreme\include;C:\ProgramData\TL-Engine\3rd Party\irrlicht-0.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -164,20 +165,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CAnimation.h" />
-    <ClInclude Include="CManagedPool.h" />
     <ClInclude Include="IUsings.h" />
     <ClInclude Include="CParticle.h" />
     <ClInclude Include="CParticleEmitter.h" />
-    <ClInclude Include="CPool.h" />
     <ClInclude Include="IAnimation.h" />
     <ClInclude Include="ExEngine.h" />
     <ClInclude Include="ExtendedEngine.h" />
     <ClInclude Include="IEngine.h" />
-    <ClInclude Include="IManagedResource.h" />
     <ClInclude Include="IParticleEmitter.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="IUpdateable.h" />
     <ClInclude Include="TLXEngineModified.h" />
   </ItemGroup>
   <ItemGroup>

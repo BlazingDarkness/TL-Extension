@@ -42,9 +42,6 @@
     <ClInclude Include="ExEngine.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="IUpdateable.h">
-      <Filter>Header Files\Interface</Filter>
-    </ClInclude>
     <ClInclude Include="IEngine.h">
       <Filter>Header Files\Interface</Filter>
     </ClInclude>
@@ -63,16 +60,7 @@
     <ClInclude Include="CParticleEmitter.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="CManagedPool.h">
-      <Filter>Header Files\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="IManagedResource.h">
-      <Filter>Header Files\Interface</Filter>
-    </ClInclude>
     <ClInclude Include="CParticle.h">
-      <Filter>Header Files\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="CPool.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="IUsings.h">
