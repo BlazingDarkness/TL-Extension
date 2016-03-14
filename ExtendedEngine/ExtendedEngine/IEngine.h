@@ -85,5 +85,11 @@ namespace tle
 
 		//Unpauses any auto updated entities eg animations and particles
 		virtual void UnpauseAutoUpdates() = 0;
+
+		//Destroys all models and only models in the cache
+		virtual void ClearModelCache() = 0;
+
+		//Destroys all meshes and therefore all models and particle emitters
+		virtual void ClearMeshCache() = 0;
 	};
 }

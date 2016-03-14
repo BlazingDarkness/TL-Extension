@@ -47,6 +47,19 @@ namespace tle
 		{
 			if (pMesh == mesh->second)
 			{
+				//Ensure that all models based on this mesh is removed from the cache
+				for (auto modelList = mModelCache.begin(); modelList != mModelCache.end(); /*Don't increment if erased is called*/)
+				{
+					if ((*modelList).first.first == pMesh)
+					{
+						modelList = mModelCache.erase(modelList);
+					}
+					else
+					{
+						++modelList;
+					}
+				}
+
 				CTLXEngineMod::RemoveMesh(mesh->second);
 				mMeshMap.erase(mesh);
 				return;
@@ -402,6 +415,37 @@ namespace tle
 		mAutoUpdate = true;
 	}
 
+	//Destroys all models and only models in the cache
+	void ExEngine::ClearModelCache()
+	{
+		for (auto modelList = mModelCache.begin(); modelList != mModelCache.end(); ++modelList)
+		{
+			for (auto model = modelList->second.begin(); model != modelList->second.end(); ++model)
+			{
+				(*model)->GetMesh()->RemoveModel(*model);
+			}
+		}
+		mModelCache.clear();
+	}
+
+	//Destroys all meshes and therefore all models and particle emitters
+	void ExEngine::ClearMeshCache()
+	{
+		//Destroy the emitters
+		mEmitters.clear();
+		mDyingEmitters.clear();
+
+		//Must be after the emitters but before meshes
+		ClearModelCache();
+
+		//Must be done last
+		for (auto it = mMeshMap.begin(); it != mMeshMap.end(); ++it)
+		{
+			CTLXEngineMod::RemoveMesh((*it).second);
+		}
+		mMeshMap.clear();
+	}
+
 	/***************************************************
 						Destructor
 	****************************************************/
@@ -410,23 +454,6 @@ namespace tle
 	ExEngine::~ExEngine()
 	{
 		mAnimations.clear();
-		mEmitters.clear();
-		mDyingEmitters.clear();
-
-		//Must be after the emitters but before meshes
-		for (auto modelList = mModelCache.begin(); modelList != mModelCache.end(); ++modelList)
-		{
-			for (auto model = modelList->second.begin(); model != modelList->second.end(); ++model)
-			{
-				(*model)->GetMesh()->RemoveModel(*model);
-			}
-		}
-
-		//Must be done last
-		for (auto it = mMeshMap.begin(); it != mMeshMap.end(); ++it)
-		{
-			CTLXEngineMod::RemoveMesh((*it).second);
-		}
-		mMeshMap.clear();
+		ClearMeshCache();
 	}
 }
