@@ -61,6 +61,21 @@ namespace tle
 	//Called from the engine to auto update the particles and emitter
 	void CParticleEmitter::Update(float delta)
 	{
+		//Update particles and remove those that are dead
+		for (auto particle = mActive.begin(); particle != mActive.end(); /*Only iterate if no erase occurs*/)
+		{
+			(*particle)->Update(delta);
+			if ((*particle)->IsDead())
+			{
+				mInactive.push_back(move(*particle));
+				particle = mActive.erase(particle);
+			}
+			else
+			{
+				++particle;
+			}
+		}
+
 		//Update spawning if not paused
 		//Also don't spawn anything if the spawn rate is faster than the limit
 		if (!mPaused && mRate > FASTEST_EMISSION_RATE)
@@ -98,21 +113,6 @@ namespace tle
 				particle->Update(mTimer);
 
 				mActive.push_back(std::unique_ptr<CParticle>(particle));
-			}
-		}
-
-		//Update particles and remove those that are dead
-		for (auto particle = mActive.begin(); particle != mActive.end(); /*Only iterate if no erase occurs*/)
-		{
-			(*particle)->Update(delta);
-			if ((*particle)->IsDead())
-			{
-				mInactive.push_back( move(*particle) );
-				particle = mActive.erase(particle);
-			}
-			else
-			{
-				++particle;
 			}
 		}
 	}
