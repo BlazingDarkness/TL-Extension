@@ -6,18 +6,37 @@
 
 namespace tle
 {
+	const string kDefaultTexture = "";
+
 	class ExEngine : public CTLXEngineMod
 	{
 	private:
+		//Declare model cache types
+		using ModelKey = std::pair<IMesh*, string>;
+		using ModelList = std::list<IModel*>;
+		using ModelKeyList = std::pair<ModelKey, ModelList>;
+
+		//Hasher for ModelKey
+		struct ModelKeyHasher
+		{
+			std::size_t operator()(const ModelKey& k) const
+			{
+				using std::size_t;
+				using std::hash;
+				using std::string;
+
+				return (hash<uintptr_t>()(reinterpret_cast<uintptr_t>(k.first)) ^ (hash<string>()(k.second) << 1));
+			}
+		};
+
 		std::unordered_map<string, IMesh*> mMeshMap;
+		std::unordered_map<ModelKey, ModelList, ModelKeyHasher> mModelCache;
 		vector_ptr<CAnimation> mAnimations;
 
 		//Particles & Emitters
-		std::unordered_map<string, std::list<IModel*>> mParticleModels;
 		vector_ptr<CParticleEmitter> mEmitters;
 		vector_ptr<CParticleEmitter> mDyingEmitters;
 		IMesh* mParticleMesh;
-		int particleCount = 0;
 
 		bool mAutoUpdate;
 
@@ -47,6 +66,25 @@ namespace tle
 		/***************************************************
 							New functions
 		****************************************************/
+
+		///////////////
+		//Model Cache//
+
+		//Loads the mesh file into the engine
+		//If an amount is specified it will create a number of models and store them for later use
+		//The models will be created and the texture set the what has been provided
+		//A texture of "" will use the default model's texture
+		virtual void Preload(const string& sMesh, const int amount = 0, const string& texture = kDefaultTexture);
+
+		//Returns an instance of the mesh from the cache that already has the provided texture
+		//if one already exists, otherwise it creates a model with the texture
+		//A texture of "" will use the model's default texture 
+		virtual IModel* GetModel(IMesh* pMesh, const string& texture = kDefaultTexture);
+
+		//Stores the model in the model cache for later use
+		//Use the texture param to specify if the mesh has been given a different texture
+		//A texture of "" will assume the model has the default texture
+		virtual void CacheModel(IModel* pModel, const string& texture = kDefaultTexture);
 
 		/////////////
 		//Animation//

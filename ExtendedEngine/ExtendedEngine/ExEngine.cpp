@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-//#include <algorithm>
 #include <iostream>
 
 #include "ExEngine.h"
@@ -87,11 +86,19 @@ namespace tle
 				(matrix[1] * -100.0f) + pCamera->GetY(),
 				(matrix[2] * -100.0f) + pCamera->GetZ());
 
-			for (auto particleList = mParticleModels.begin(); particleList != mParticleModels.end(); ++particleList)
+			/*for (auto particleList = mParticleModels.begin(); particleList != mParticleModels.end(); ++particleList)
 			{
 				for (auto particle = particleList->second.begin(); particle != particleList->second.end(); ++particle)
 				{
 					(*particle)->SetPosition(pos.x, pos.y, pos.z);
+				}
+			}*/
+
+			for (auto modelList = mModelCache.begin(); modelList != mModelCache.end(); ++modelList)
+			{
+				for (auto model = modelList->second.begin(); model != modelList->second.end(); ++model)
+				{
+					(*model)->SetPosition(pos.x, pos.y, pos.z);
 				}
 			}
 		}
@@ -105,8 +112,6 @@ namespace tle
 	float ExEngine::Timer()
 	{
 		float frameTime = CTLXEngineMod::Timer();
-
-		std::cout << "Particles: " << particleCount << " FPS:" << (1.0f / frameTime) << std::endl;
 
 		if (mAutoUpdate)
 		{
@@ -145,6 +150,107 @@ namespace tle
 	/***************************************************
 						New functions
 	****************************************************/
+
+	///////////////
+	//Model Cache//
+
+	//Loads the mesh file into the engine
+	//If an amount is specified it will create a number of models and store them for later use
+	//The models will be created and the texture set the what has been provided
+	//A texture of "" will use the default model's texture
+	void ExEngine::Preload(const string& sMesh, const int amount, const string& texture)
+	{
+		//Load mesh
+		IMesh* mesh = ExEngine::LoadMesh(sMesh);
+		ModelKey mKey = ModelKey(mesh, texture);
+
+		//Return if loading mesh failed or no models to create
+		if (amount <= 0 || !mesh) return;
+		
+		//Get list
+		auto mapItr = mModelCache.find(mKey);
+
+		//If list already exists
+		if (mapItr == mModelCache.end())
+		{
+			ModelList modelList;
+
+			for (int i = 0; i < amount; ++i)
+			{
+				IModel* model = mesh->CreateModel();
+
+				//Set the texture if not default
+				if (texture != kDefaultTexture) model->SetSkin(texture);
+
+				modelList.push_back(model);
+			}
+
+			mModelCache.insert(ModelKeyList(mKey, modelList));
+		}
+		else //If list already exists
+		{
+			for (int i = 0; i < amount; ++i)
+			{
+				IModel* model = mesh->CreateModel();
+
+				//Set the texture if not default
+				if (texture != kDefaultTexture) model->SetSkin(texture);
+
+				mapItr->second.push_back(model);
+			}
+		}
+	}
+
+	//Returns an instance of the mesh from the cache that already has the provided texture
+	//if one already exists, otherwise it creates a model with the texture
+	//A texture of "" will use the model's default texture 
+	IModel* ExEngine::GetModel(IMesh* pMesh, const string& texture)
+	{
+		ModelKey mKey = ModelKey(pMesh, texture);
+
+		//Get list
+		auto mapItr = mModelCache.find(mKey);
+
+		//Returns a model from the model cache
+		if (mapItr != mModelCache.end() && static_cast<int>(mapItr->second.size()) > 0)
+		{
+			IModel* model = mapItr->second.back();
+			mapItr->second.pop_back();
+			return model;
+		}
+		else //Create a new model if there are none in the cache
+		{
+			IModel* model = pMesh->CreateModel();
+
+			//Set the texture if not default
+			if (texture != kDefaultTexture) model->SetSkin(texture);
+
+			return model;
+		}
+	}
+
+	//Stores the model in the model cache for later use
+	//Use the texture param to specify if the mesh has been given a different texture
+	//A texture of "" will assume the model has the default texture
+	void ExEngine::CacheModel(IModel* pModel, const string& texture)
+	{
+		ModelKey mKey = ModelKey(pModel->GetMesh(), texture);
+
+		//Get list
+		auto mapItr = mModelCache.find(mKey);
+
+		//Add model to the list
+		if (mapItr != mModelCache.end())
+		{
+			mapItr->second.push_back(pModel);
+		}
+		else //Create a new list if none exists
+		{
+			ModelList modelList;
+			modelList.push_back(pModel);
+			mModelCache.insert(ModelKeyList(mKey, modelList));
+		}
+	}
 
 	/////////////
 	//Animation//
@@ -270,49 +376,14 @@ namespace tle
 	//Gives a pointer to a particle model (quad) that already has the given texture
 	IModel* ExEngine::GetParticleModel(const string& texture)
 	{
-		IModel* model = 0;
-		auto iter = mParticleModels.find(texture);
-		if (iter != mParticleModels.end() && iter->second.size() > 0)
-		{
-			model = iter->second.back();
-			iter->second.pop_back();
-		}
-		else
-		{
-			if (!mParticleMesh) mParticleMesh = ExEngine::LoadMesh(PARTICLE_MODEL);
-			model = mParticleMesh->CreateModel();
-			model->SetSkin(texture);
-			++particleCount;
-		}
-		return model;
+		if (!mParticleMesh) mParticleMesh = ExEngine::LoadMesh(PARTICLE_MODEL);
+		return GetModel(mParticleMesh, texture);
 	}
 
 	//Adds an unused particle model to the cache
 	void ExEngine::ReturnParticleModel(IModel* model, const string& texture)
 	{
-		auto iter = mParticleModels.find(texture);
-		if (iter != mParticleModels.end())
-		{
-#ifdef _DEBUG
-			if (iter->second.size() < 50)
-			{
-#endif // _DEBUG
-				iter->second.push_back(model);
-#ifdef _DEBUG
-			}
-			else
-			{
-				mParticleMesh->RemoveModel(model);
-				--particleCount;
-			}
-#endif // _DEBUG
-		}
-		else
-		{
-			std::list<IModel*> list;
-			list.push_back(model);
-			mParticleModels.insert(std::pair<string, std::list<IModel*>>{texture, list});
-		}
+		CacheModel(model, texture);
 	}
 
 	/***************************************************
@@ -342,15 +413,14 @@ namespace tle
 		mEmitters.clear();
 		mDyingEmitters.clear();
 
-		//Must be after the emitters
-		for (auto particleList = mParticleModels.begin(); particleList != mParticleModels.end(); ++particleList)
+		//Must be after the emitters but before meshes
+		for (auto modelList = mModelCache.begin(); modelList != mModelCache.end(); ++modelList)
 		{
-			for (auto particle = particleList->second.begin(); particle != particleList->second.end(); ++particle)
+			for (auto model = modelList->second.begin(); model != modelList->second.end(); ++model)
 			{
-				mParticleMesh->RemoveModel(*particle);
+				(*model)->GetMesh()->RemoveModel(*model);
 			}
 		}
-		mParticleMesh = 0; //It's destroyed by the below code
 
 		//Must be done last
 		for (auto it = mMeshMap.begin(); it != mMeshMap.end(); ++it)
