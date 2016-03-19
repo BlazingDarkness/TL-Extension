@@ -89,17 +89,17 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>C:\ProgramData\TL-Engine\include;C:\ProgramData\TL-Engine\Source\3DEngine;C:\ProgramData\TL-Engine\Source\Common;C:\ProgramData\TL-Engine\3rd Party\TL-Xtreme\include;C:\ProgramData\TL-Engine\3rd Party\irrlicht-0.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(TLPath)\include;$(TLPath)\Source\3DEngine;$(TLPath)\Source\Common;$(TLPath)\3rd Party\TL-Xtreme\include;$(TLPath)\3rd Party\irrlicht-0.7\include;$(TLPath)\3rd Party\SFML-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>3DEngine2015Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>C:\ProgramData\TL-Engine\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(TLPath)\lib;$(TLPath)\3rd Party\SFML-2.3.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -128,7 +128,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>C:\ProgramData\TL-Engine\include;C:\ProgramData\TL-Engine\Source\3DEngine;C:\ProgramData\TL-Engine\Source\Common;C:\ProgramData\TL-Engine\3rd Party\TL-Xtreme\include;C:\ProgramData\TL-Engine\3rd Party\irrlicht-0.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(TLPath)\include;$(TLPath)\Source\3DEngine;$(TLPath)\Source\Common;$(TLPath)\3rd Party\TL-Xtreme\include;$(TLPath)\3rd Party\irrlicht-0.7\include;$(TLPath)\3rd Party\SFML-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -137,10 +137,10 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>3DEngine2015.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>C:\ProgramData\TL-Engine\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(TLPath)\lib;$(TLPath)\3rd Party\SFML-2.3.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
