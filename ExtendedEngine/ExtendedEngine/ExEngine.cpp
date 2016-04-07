@@ -13,8 +13,6 @@ namespace tle
 					Overriden functions
 	****************************************************/
 
-	//Attempts to Loads the specificed mesh
-	//Returns 0 if mesh can't be found
 	ExEngine::ExEngine() : CTLXEngineMod()
 	{
 		mAutoUpdate = true;
@@ -22,7 +20,8 @@ namespace tle
 		mParticleMesh = 0;
 	}
 
-	//Removes the mesh if found, all models of the mesh will also be deleted
+	//Attempts to Loads the specificed mesh
+	//Returns 0 if mesh can't be found
 	IMesh* ExEngine::LoadMesh(const string& sMeshFileName)
 	{
 		auto mesh = mMeshMap.find(sMeshFileName);
@@ -39,8 +38,7 @@ namespace tle
 		}
 	}
 
-	// Draw everything in the scene from the viewpoint of the given camera.
-	// If no camera is supplied, the most recently created camera is used.
+	//Removes the mesh if found, all models of the mesh will also be deleted
 	void ExEngine::RemoveMesh(const IMesh* pMesh)
 	{
 		for (auto mesh = mMeshMap.begin(); mesh != mMeshMap.end(); ++mesh)
@@ -164,14 +162,14 @@ namespace tle
 						New functions
 	****************************************************/
 
-	///////////////
-	//Model Cache//
+	///////////
+	//Loading//
 
 	//Loads the mesh file into the engine
 	//If an amount is specified it will create a number of models and store them for later use
 	//The models will be created and the texture set the what has been provided
 	//A texture of "" will use the default model's texture
-	void ExEngine::Preload(const string& sMesh, const int amount, const string& texture)
+	void ExEngine::Load(const string& sMesh, const int amount, const string& texture)
 	{
 		//Load mesh
 		IMesh* mesh = ExEngine::LoadMesh(sMesh);
@@ -179,7 +177,7 @@ namespace tle
 
 		//Return if loading mesh failed or no models to create
 		if (amount <= 0 || !mesh) return;
-		
+
 		//Get list
 		auto mapItr = mModelCache.find(mKey);
 
@@ -213,6 +211,151 @@ namespace tle
 			}
 		}
 	}
+
+	//Adds the mesh to a load queue but does not load it
+	//Also adds the amount and texture to of the mesh to be loaded
+	//The models and mesh will be loaded when "LoadQueuedObjects" is called
+	void ExEngine::AddToLoadQueue(const string& sMesh, const int amount, const string& texture)
+	{
+		mModelLoadQueue.push_back(ModelLoadToken{ 0, sMesh, texture, amount });
+
+		for (auto it = mMeshLoadQueue.begin(); it != mMeshLoadQueue.end(); ++it)
+		{
+			if ((*it) == sMesh) return;
+		}
+
+		mMeshLoadQueue.push_back(sMesh);
+	}
+
+	//Adds a pointer to a model pointer to the queue
+	//A model of the mesh with the given texture will be created and stored into
+	//the model pointer when "LoadQueuedObjects" is called
+	void ExEngine::AddToLoadQueue(IModel** model, const string& sMesh, const string& texture)
+	{
+		mModelLoadQueue.push_back(ModelLoadToken{ model, sMesh, texture, 1 });
+	}
+
+	//Loads all the meshes and models that had been added to the load queue
+	//The load screen is optional and allows the engine to call the load screen's update function
+	//After every few objects have been loaded to show progress
+	void ExEngine::LoadQueuedObjects(ILoadScreen* loadScreen)
+	{
+		//Store current value of autoupdate then turn it
+		//off for the duration of the load function
+		bool autoUpdate = mAutoUpdate;
+		mAutoUpdate = false;
+
+		//Calculate the number of items to be loaded
+		int items = mMeshLoadQueue.size();
+		for (auto it = mModelLoadQueue.begin(); it != mModelLoadQueue.end(); ++it)
+		{
+			items += it->mAmount;
+		}
+
+		int progress = 0;
+		float drawTimer = 0.0f;
+		float loadTime = 0.0f;
+
+		if (loadScreen)
+		{
+			//Set the default values of the load screen
+			loadScreen->SetLoadAmount(items);
+			loadScreen->SetLoadProgress(progress);
+			loadScreen->SetLoadMessage("Loading...");
+			loadScreen->Update(0.0f);
+
+			//Drawing isn't needed if there is no loading screen
+			ExEngine::DrawScene();
+			ExEngine::Timer(); //Reset timer
+		}
+
+		//Load all of the meshes
+		while (mMeshLoadQueue.size())
+		{
+			//Update load screen
+			if (loadScreen)
+			{
+				loadTime = ExEngine::Timer();
+				drawTimer += loadTime;
+				loadScreen->SetLoadProgress(progress);
+				loadScreen->SetLoadMessage("Loading Mesh: " + mMeshLoadQueue.front());
+				loadScreen->Update(loadTime);
+
+				if (drawTimer > 0.033f) //Draw load screen at 30 fps
+				{
+					drawTimer -= 0.033f;
+					ExEngine::DrawScene();
+				}
+			}
+
+			//Load mesh
+			ExEngine::LoadMesh(mMeshLoadQueue.front());
+			mMeshLoadQueue.pop_front();
+			++progress;
+		}
+
+		while (mModelLoadQueue.size())
+		{
+			string modelName = mModelLoadQueue.front().mMesh;
+			//Remove the .x
+			modelName.pop_back();
+			modelName.pop_back();
+
+			//Get texture name
+			string textureName = mModelLoadQueue.front().mTexture;
+			if (textureName == kDefaultTexture) textureName = "Default";
+
+			//Create main part of message
+			string message = "Create Model: " + modelName + "  Texture: " + textureName + "  Amount: ";
+
+			IMesh* mesh = ExEngine::LoadMesh(mModelLoadQueue.front().mMesh);
+
+			for (int i = 0; i < mModelLoadQueue.front().mAmount; ++i)
+			{
+				//Update load screen
+				if (loadScreen)
+				{
+					loadTime = ExEngine::Timer();
+					drawTimer += loadTime;
+					loadScreen->SetLoadProgress(progress);
+					loadScreen->SetLoadMessage(message + std::to_string(i) + "/" + std::to_string(mModelLoadQueue.front().mAmount));
+					loadScreen->Update(loadTime);
+
+					if (drawTimer > 0.033f) //Draw load screen at 30 fps
+					{
+						drawTimer -= 0.033f;
+						ExEngine::DrawScene();
+					}
+				}
+
+				//Create model, optionally set the texture if not using the default texture
+				IModel* model = mesh->CreateModel();
+				if (mModelLoadQueue.front().mTexture != kDefaultTexture)
+				{
+					model->SetSkin(mModelLoadQueue.front().mTexture);
+				}
+
+				//If there's a model pointer to assign it to then do so, otherwise cache the model
+				if (mModelLoadQueue.front().mppModel)
+				{
+					(*(mModelLoadQueue.front().mppModel)) = model;
+				}
+				else
+				{
+					ExEngine::CacheModel(model, mModelLoadQueue.front().mTexture);
+				}
+				++progress;
+			}
+
+			mModelLoadQueue.pop_front();
+		}
+
+		//Set auto update back to its previous value
+		mAutoUpdate = autoUpdate;
+	}
+
+	///////////////
+	//Model Cache//
 
 	//Returns an instance of the mesh from the cache that already has the provided texture
 	//if one already exists, otherwise it creates a model with the texture
@@ -424,6 +567,7 @@ namespace tle
 			{
 				(*model)->GetMesh()->RemoveModel(*model);
 			}
+			modelList->second.clear();
 		}
 		mModelCache.clear();
 	}

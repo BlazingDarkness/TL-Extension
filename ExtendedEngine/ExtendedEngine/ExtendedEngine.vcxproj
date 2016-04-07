@@ -165,6 +165,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CAnimation.h" />
+    <ClInclude Include="ILoadScreen.h" />
     <ClInclude Include="IUsings.h" />
     <ClInclude Include="CParticle.h" />
     <ClInclude Include="CParticleEmitter.h" />
