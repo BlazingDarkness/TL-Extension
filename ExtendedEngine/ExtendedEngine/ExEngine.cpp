@@ -217,7 +217,8 @@ namespace tle
 	//The models and mesh will be loaded when "LoadQueuedObjects" is called
 	void ExEngine::AddToLoadQueue(const string& sMesh, const int amount, const string& texture)
 	{
-		mModelLoadQueue.push_back(ModelLoadToken{ 0, sMesh, texture, amount });
+		//If any models need to be created then add to the model queue
+		if (amount) mModelLoadQueue.push_back(ModelLoadToken{ 0, sMesh, texture, amount });
 
 		for (auto it = mMeshLoadQueue.begin(); it != mMeshLoadQueue.end(); ++it)
 		{

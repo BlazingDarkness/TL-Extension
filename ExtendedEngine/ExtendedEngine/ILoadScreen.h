@@ -15,29 +15,29 @@ namespace tle
 		int mLoadProgress;
 
 		//The current load action
-		string mLoadMeshage;
+		string mLoadMessage;
 
 	public:
 		//Used by the engine to update the load screen
 		virtual void Update(float delta) = 0;
 
 		//Used by the engine to set the load amount
-		void SetLoadAmount(int loadAmount);
+		void SetLoadAmount(int loadAmount) { mLoadAmount = loadAmount; };
 
 		//Gets the load amount
-		int GetLoadAmount();
+		int GetLoadAmount() { return mLoadAmount; };
 
 		//Used by the engine to update the load progress
-		void SetLoadProgress(int loadProgress);
+		void SetLoadProgress(int loadProgress) { mLoadProgress = loadProgress; };
 
 		//Gets the load progress
-		int GetLoadProgress();
+		int GetLoadProgress() { return mLoadProgress; };
 
 		//Used by the engine to pass the current load action being performed to the load screen
-		void SetLoadMessage(const string& message);
+		void SetLoadMessage(const string& message) { mLoadMessage = message; };
 
 		//Gets the load message
-		string& GetLoadMessage();
+		string& GetLoadMessage() { return mLoadMessage; };
 
 		//Destroy any load screen content
 		virtual ~ILoadScreen() = 0;
