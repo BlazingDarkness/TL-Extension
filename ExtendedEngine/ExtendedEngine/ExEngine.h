@@ -2,6 +2,7 @@
 #include "TLXEngineModified.h"
 #include "CParticleEmitter.h"
 #include "CAnimation.h"
+#include "CSoundManager.h"
 #include <unordered_map>
 #include <deque>
 
@@ -30,6 +31,7 @@ namespace tle
 			}
 		};
 
+		//Model & mesh cache
 		std::unordered_map<string, IMesh*> mMeshMap;
 		std::unordered_map<ModelKey, ModelList, ModelKeyHasher> mModelCache;
 		vector_ptr<CAnimation> mAnimations;
@@ -49,6 +51,9 @@ namespace tle
 		};
 		std::deque<string> mMeshLoadQueue;
 		std::deque<ModelLoadToken> mModelLoadQueue;
+
+		//Sound
+		CSoundManager* mpSoundManager;
 
 		bool mAutoUpdate;
 
@@ -166,6 +171,26 @@ namespace tle
 		//Adds an unused particle model to the cache
 		virtual void ReturnParticleModel(IModel* model, const string& texture);
 
+		/////////
+		//Sound//
+
+		//Creates a sound object from the given file
+		//Returns 0 if the sound could not be loaded
+		virtual ISound* CreateSound(const std::string& soundFile);
+
+		//Removes the sound if it exists
+		virtual void RemoveSound(ISound* pSound);
+
+		/////////
+		//Music//
+
+		//Creates a music object from the given file
+		//Returns 0 if the file could not be loaded
+		virtual IMusic* CreateMusic(const std::string& musicFile);
+
+		//Removes the music if it exists
+		virtual void RemoveMusic(IMusic* pMusic);
+
 		/***************************************************
 						Additional Controls
 		****************************************************/
@@ -181,6 +206,18 @@ namespace tle
 
 		//Destroys all meshes and therefore all models and particle emitters
 		virtual void ClearMeshCache();
+
+		//Destroys all music
+		virtual void ClearMusic();
+
+		//Destroys all sounds
+		virtual void ClearSounds();
+
+		//Sets the volume for the specific volume modifier
+		virtual void SetVolume(float volume, SoundType type);
+
+		//Gets the volume for the specific volume modifier
+		virtual float GetVolume(SoundType type);
 
 		/***************************************************
 							Destructor

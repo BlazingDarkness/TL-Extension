@@ -38,8 +38,5 @@ namespace tle
 
 		//Gets the load message
 		string& GetLoadMessage() { return mLoadMessage; };
-
-		//Destroy any load screen content
-		virtual ~ILoadScreen() = 0;
 	};
 }

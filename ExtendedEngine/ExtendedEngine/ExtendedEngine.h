@@ -6,8 +6,5 @@
 
 namespace tle
 {
-	// Legacy style behaviour of certain TL functions
-	bool g_bLegacyTL = false;
-
 	IEngine* NewEngine();
 }

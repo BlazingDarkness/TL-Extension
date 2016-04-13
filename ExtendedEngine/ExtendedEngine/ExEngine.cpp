@@ -16,6 +16,7 @@ namespace tle
 	ExEngine::ExEngine() : CTLXEngineMod()
 	{
 		mAutoUpdate = true;
+		mpSoundManager = new CSoundManager();
 
 		mParticleMesh = 0;
 	}
@@ -543,6 +544,38 @@ namespace tle
 		CacheModel(model, texture);
 	}
 
+	/////////
+	//Sound//
+
+	//Creates a sound object from the given file
+	//Returns 0 if the sound could not be loaded
+	ISound* ExEngine::CreateSound(const std::string& soundFile)
+	{
+		return mpSoundManager->CreateSound(soundFile);
+	}
+
+	//Removes the sound if it exists
+	void ExEngine::RemoveSound(ISound* pSound)
+	{
+		mpSoundManager->RemoveSound(pSound);
+	}
+
+	/////////
+	//Music//
+
+	//Creates a music object from the given file
+	//Returns 0 if the file could not be loaded
+	IMusic* ExEngine::CreateMusic(const std::string& musicFile)
+	{
+		return mpSoundManager->CreateMusic(musicFile);
+	}
+
+	//Removes the music if it exists
+	void ExEngine::RemoveMusic(IMusic* pMusic)
+	{
+		mpSoundManager->RemoveMusic(pMusic);
+	}
+
 	/***************************************************
 					Additional Controls
 	****************************************************/
@@ -591,6 +624,30 @@ namespace tle
 		mMeshMap.clear();
 	}
 
+	//Destroys all music
+	void ExEngine::ClearMusic()
+	{
+		mpSoundManager->ClearMusic();
+	}
+
+	//Destroys all sounds
+	void ExEngine::ClearSounds()
+	{
+		mpSoundManager->ClearSounds();
+	}
+
+	//Sets the volume for the specific volume modifier
+	void ExEngine::SetVolume(float volume, SoundType type)
+	{
+		mpSoundManager->SetVolume(volume, type);
+	}
+
+	//Gets the volume for the specific volume modifier
+	float ExEngine::GetVolume(SoundType type)
+	{
+		return mpSoundManager->GetVolume(type);
+	}
+
 	/***************************************************
 						Destructor
 	****************************************************/
@@ -600,5 +657,6 @@ namespace tle
 	{
 		mAnimations.clear();
 		ClearMeshCache();
+		delete mpSoundManager;
 	}
 }
