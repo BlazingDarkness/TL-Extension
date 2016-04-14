@@ -8,6 +8,7 @@ namespace tle
 	CMusic::CMusic(SoundType type, sf::Music* music, CSoundManager* manager)
 	{
 		mType = type;
+		mVolume = 100.0f;
 		mpMusic = music;
 		mpManager = manager;
 
