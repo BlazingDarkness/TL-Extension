@@ -85,7 +85,7 @@ namespace tle
 			{
 				do {
 					mTimer -= mRate;
-				} while (mTimer > mParticleData.mMaxLife); //No point in making a particle that is already dead
+				} while (mTimer >= mParticleData.mMaxLife); //No point in making a particle that is already dead
 
 				CParticle* particle;
 				float matrix[16];
