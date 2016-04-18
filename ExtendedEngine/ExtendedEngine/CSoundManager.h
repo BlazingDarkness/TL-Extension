@@ -26,6 +26,7 @@ namespace tle
 		float mSFXVolume = 100.0f;
 		float mAmbientVolume = 100.0f;
 		float mMusicVolume = 100.0f;
+		float mInterfaceVolume = 100.0f;
 
 	public:
 		//Create a sound manager

@@ -138,6 +138,9 @@ namespace tle
 		case SoundType::Music:
 			mMusicVolume = volume;
 			break;
+		case SoundType::Interface:
+			mInterfaceVolume = volume;
+			break;
 		case SoundType::Global:
 			sf::Listener::setGlobalVolume(volume);
 			break;
@@ -168,6 +171,8 @@ namespace tle
 			return mAmbientVolume;
 		case SoundType::Music:
 			return mMusicVolume;
+		case SoundType::Interface:
+			return mInterfaceVolume;
 		case SoundType::Global:
 			return sf::Listener::getGlobalVolume();
 		default:

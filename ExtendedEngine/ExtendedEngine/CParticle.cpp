@@ -36,11 +36,9 @@ namespace tle
 		mVel += mpData->mAcl;
 		mTextureTimer += delta;
 
-		//Warning: If an error occurs here, add the commented out piece of code to the while loop condition
-		//Note: If the total time passed is exactly equal or higher than the particle's max life then the texure
-		//index is incremented pass the end of the vector
-		//However this is checked for in the particle emitter and therefore shouldn't *need* the duplicate check here
-		while (mTextureTimer > mpData->mAnimationRate) // && static_cast<int>(mpData->mTexture.size() - 1) > mTextureIndex
+		//Note: If the total time passed is exactly equal or higher than the particle's max life then the texture
+		//index is incremented pass the end of the vector, so avoid it
+		while (mTextureTimer > mpData->mAnimationRate && static_cast<int>(mpData->mTexture.size() - 1) > mTextureIndex)
 		{
 			float matrix[16];
 
