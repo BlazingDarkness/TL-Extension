@@ -613,6 +613,9 @@ namespace tle
 		mEmitters.clear();
 		mDyingEmitters.clear();
 
+		//Set the particle mesh back to null
+		mParticleMesh = 0;
+
 		//Must be after the emitters but before meshes
 		ClearModelCache();
 
